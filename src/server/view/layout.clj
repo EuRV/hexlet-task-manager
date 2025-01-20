@@ -1,8 +1,8 @@
 (ns server.view.layout
   (:require [hiccup2.core :as h]))
-  
-  (defn common
-    [& content]
+
+(defn common [content]
+  (let [{:keys [page-name page]} content]
     (str
      (h/html (h/raw "<!DOCTYPE html>")
              [:html {:lang "ru"}
@@ -26,9 +26,9 @@
                    [:li.nav-item
                     [:a.nav-link {:href "/users/new"} "Регистрация"]]]]]]
                [:div.container.wrapper.flex-grow-1
-                [:h1.display-4.fw-bold.mt-4]
-                content]
+                [:h1.display-4.fw-bold.mt-4 page-name]
+                page]
                [:footer.bg-dark.text-light
                 [:div.container.py-3
                  [:p.lead.mb-0 "© Hexlet Ltd, 2021"]]]
-               [:script {:src "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" :integrity "sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" :crossorigin "anonymous"}]]])))
+               [:script {:src "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" :integrity "sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" :crossorigin "anonymous"}]]]))))
