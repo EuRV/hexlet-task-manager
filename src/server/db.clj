@@ -1,15 +1,34 @@
 (ns server.db
-  (:require [next.jdbc :as jdbc]))
+  (:gen-class)
+  (:require [hugsql.core :as hugsql]
+            [hugsql.adapter.next-jdbc :as adapter]
+            [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]))
 
-(def db {:dbtype "postgresql"
+(hugsql/def-db-fns "./../resources/sql/queries.sql"
+  {:adapter (adapter/hugsql-adapter-next-jdbc
+             {:builder-fn rs/as-unqualified-kebab-maps})})
+
+(def db-spec {:dbtype "postgresql"
          :dbname "testdb"
          :host "127.0.0.1"
          :port 5432
          :user "eurv"
          :password "pgpwd"})
 
-(def ds (jdbc/get-datasource db))
+(def ds (jdbc/get-datasource db-spec))
 
-(comment
+(defn get-users
+  []
+  #_{:clj-kondo/ignore [:unresolved-symbol]}
+  (list-users ds))
 
-  :rcf)
+(defn get-user
+  [id]
+  #_{:clj-kondo/ignore [:unresolved-symbol]}
+  (get-user-by-id ds {:id id}))
+
+(defn add-user
+  [user]
+  #_{:clj-kondo/ignore [:unresolved-symbol]}
+  (create-user ds user))
