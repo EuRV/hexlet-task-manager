@@ -1,13 +1,13 @@
 (ns server.db
-  (:gen-class)
   (:require [hugsql.core :as hugsql]
             [hugsql.adapter.next-jdbc :as adapter]
             [next.jdbc :as jdbc]
-            [next.jdbc.result-set :as rs]))
+            [next.jdbc.result-set :as rs])
+  (:gen-class))
 
 (hugsql/def-db-fns "./../resources/sql/queries.sql"
   {:adapter (adapter/hugsql-adapter-next-jdbc
-             {:builder-fn rs/as-unqualified-kebab-maps})})
+             {:builder-fn rs/as-kebab-maps})})
 
 (def db-spec {:dbtype "postgresql"
          :dbname "testdb"
