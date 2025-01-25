@@ -18,11 +18,10 @@
     (into [] (concat new-item [(table-action entity id)]))))
 
 (defn table-render
-  [data contents]
-  (let [{:keys [entity headings]} data]
+  [{:keys [entity headings]} contents]
     [:div.table-responsive
      [:table.table.table-borderless.table-striped.mt-5.bg-white
       [:thead
        (table-head headings)]
       [:tbody
-       (table-body entity contents)]]]))
+       (table-body entity contents)]]])
