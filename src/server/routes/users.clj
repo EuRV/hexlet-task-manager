@@ -2,15 +2,9 @@
   (:require [compojure.core :refer [GET defroutes]]
 
             [server.view.layout :as layout]
-            [server.view.users :as view])
+            [server.view.users :as view]
+            [server.models.users :refer [list-users]])
   (:gen-class))
 
-(def content {:page-name "Пользователи"
-              :page (view/users)})
-
-(defn users
-  []
-  (layout/common content))
-
 (defroutes users-routes
-  (GET "/users" [] (users)))
+  (GET "/users" [] (layout/common (view/users-page (list-users)))))

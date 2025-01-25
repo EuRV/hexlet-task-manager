@@ -5,12 +5,5 @@
             [server.view.home :as view])
   (:gen-class))
 
-(def content {:page-name ""
-              :page (view/home)})
-
-(defn home
-  []
-  (layout/common content))
-
 (defroutes home-routes
-  (GET "/" [] (home)))
+  (GET "/" [] (layout/common (view/home))))
