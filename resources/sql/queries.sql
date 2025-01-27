@@ -9,4 +9,4 @@ SELECT * FROM users
 
 -- :name create-user :i!
 INSERT INTO users (first_name, last_name, email, password_digest)
-  VALUES (:first-name, :last-name, :email, :password-digest);
+  VALUES (:user/first-name, :user/last-name, :user/email, :user/password-digest);
