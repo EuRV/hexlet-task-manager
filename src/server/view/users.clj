@@ -25,13 +25,13 @@
         [:form {:action "/users" :method "post"}
          [:div.form-floating.mb-3
           [:input.form-control {:id "data-first-name"
-                                :name "fname"
+                                :name "first-name"
                                 :placeholder "Имя"
                                 :type "text"}]
           [:label {:for "data-first-name"} "Имя"]]
          [:div.form-floating.mb-3
           [:input.form-control {:id "data-last-name"
-                                :name "lname"
+                                :name "last-name"
                                 :placeholder "Фамилия"
                                 :type "text"}]
           [:label {:for "data-last-name"} "Фамилия"]]
@@ -43,7 +43,7 @@
           [:label {:for "data-email"} "Email"]]
          [:div.form-floating.mb-3
           [:input.form-control {:id "data-password"
-                                :name "password"
+                                :name "password-digest"
                                 :placeholder "Пароль"
                                 :type "password"}]
           [:label {:for "data-password"} "Пароль"]]
