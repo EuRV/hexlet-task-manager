@@ -2,6 +2,7 @@
   (:require [clojure.spec.alpha :as s]
 
             [server.db :as db]
+            [server.db.sql.queries :refer [queries]]
             [server.helpers :refer [formatter-users]])
   (:gen-class))
 
@@ -23,6 +24,10 @@
                 :user/email
                 :user/password-digest]))
 
-(defn list-users
+(defn get-users
   []
-  (mapv formatter-users (db/get-users)))
+  (mapv formatter-users (db/query-database (queries :list-users))))
+
+(defn add-user
+  [user]
+  (db/insert-data :users user))
