@@ -1,12 +1,15 @@
 (ns server.routes.users
-  (:require [compojure.core :refer [GET POST defroutes]]
-
-            [server.view.layout :as layout]
-            [server.view.users :as view]
-            [server.models.users :refer [list-users]])
+  (:require
+   [clojure.walk :as walk]
+   [compojure.core :refer [defroutes GET POST]]
+   [server.models.users :refer [get-users add-user]]
+   [server.view.layout :as layout]
+   [server.view.users :as view])
   (:gen-class))
 
 (defroutes users-routes
-  (GET "/users" [] (layout/common (view/users-page (list-users))))
+  (GET "/users" [] (layout/common (view/users-page (get-users))))
   (GET "/users/new" [] (layout/common (view/users-new)))
-  (POST "/users" req (println req)))
+  (POST "/users" req
+    (add-user (walk/keywordize-keys (req :form-params)))
+    (layout/common (view/users-page (get-users)))))
