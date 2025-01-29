@@ -1,34 +1,23 @@
 (ns server.db
-  (:require [hugsql.core :as hugsql]
-            [hugsql.adapter.next-jdbc :as adapter]
-            [next.jdbc :as jdbc]
-            [next.jdbc.result-set :as rs])
+  (:require    [next.jdbc :as jdbc]
+               [next.jdbc.sql :as sql])
   (:gen-class))
 
-(hugsql/def-db-fns "./../resources/sql/queries.sql"
-  {:adapter (adapter/hugsql-adapter-next-jdbc
-             {:builder-fn rs/as-kebab-maps})})
-
 (def db-spec {:dbtype "postgresql"
-         :dbname "testdb"
-         :host "127.0.0.1"
-         :port 5432
-         :user "eurv"
-         :password "pgpwd"})
+              :dbname "testdb"
+              :host "127.0.0.1"
+              :port 5432
+              :user "eurv"
+              :password "pgpwd"})
 
 (def ds (jdbc/get-datasource db-spec))
 
-(defn get-users
-  []
-  #_{:clj-kondo/ignore [:unresolved-symbol]}
-  (list-users ds))
+(defn query-database
+  [sql-statement]
+  (with-open [connection (jdbc/get-connection ds)]
+    (sql/query connection [sql-statement] jdbc/snake-kebab-opts)))
 
-(defn get-user
-  [id]
-  #_{:clj-kondo/ignore [:unresolved-symbol]}
-  (get-user-by-id ds {:id id}))
-
-(defn add-user
-  [user]
-  #_{:clj-kondo/ignore [:unresolved-symbol]}
-  (create-user ds user))
+(defn insert-data
+  [table record-data]
+  (with-open [connection (jdbc/get-connection ds)]
+    (sql/insert! connection table record-data jdbc/unqualified-snake-kebab-opts)))
