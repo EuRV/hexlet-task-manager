@@ -1,6 +1,7 @@
 (ns server.db
   (:require    [next.jdbc :as jdbc]
-               [next.jdbc.sql :as sql])
+               [next.jdbc.sql :as sql]
+               [next.jdbc.result-set :as rs])
   (:gen-class))
 
 (def db-spec {:dbtype "postgresql"
@@ -16,6 +17,17 @@
   [sql-statement]
   (with-open [connection (jdbc/get-connection ds)]
     (sql/query connection [sql-statement] jdbc/snake-kebab-opts)))
+
+(defn query-by-key
+  ([table data] (query-by-key table data nil))
+  ([table data opts]
+   (with-open [connection (jdbc/get-connection ds)]
+     (sql/find-by-keys
+      connection
+      table
+      data
+      (merge {:column-fn (:column-fn jdbc/snake-kebab-opts)
+              :builder-fn rs/as-kebab-maps} opts)))))
 
 (defn insert-data
   [table record-data]
