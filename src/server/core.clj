@@ -4,12 +4,14 @@
             [compojure.core :refer [defroutes routes]]
             
             [server.routes.home :refer [home-routes]]
-            [server.routes.users :refer [users-routes]])
+            [server.routes.users :refer [users-routes]]
+            [server.routes.session :refer [session-routes]])
   (:gen-class))
 
 (defroutes app-routes
   (routes home-routes
-          users-routes)) 
+          users-routes
+          session-routes))
 
 (def app (wrap-params #'app-routes))
 
