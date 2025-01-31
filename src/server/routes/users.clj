@@ -1,6 +1,5 @@
 (ns server.routes.users
   (:require
-   [clojure.walk :as walk]
    [compojure.core :refer [defroutes GET POST]]
    [ring.util.response :as resp]
 
@@ -13,5 +12,5 @@
   (GET "/users" [] (layout/common (view/users-page (get-users))))
   (GET "/users/new" [] (layout/common (view/users-new)))
   (POST "/users" req
-    (add-user (walk/keywordize-keys (req :form-params)))
+    (add-user (req :params))
     (resp/redirect "/")))
