@@ -1,7 +1,8 @@
 (ns server.core
   (:require [ring.adapter.jetty :refer [run-jetty]]
-            [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+            [ring.middleware.cookies :refer [wrap-cookies]]
+            [ring.middleware.session :refer [wrap-session]]
             [compojure.core :refer [defroutes routes]]
             
             [server.routes.home :refer [home-routes]]
@@ -16,8 +17,12 @@
 
 (def app
   (-> #'app-routes
-      wrap-keyword-params
-      wrap-params))
+      (wrap-defaults
+       (-> site-defaults 
+           (assoc-in [:params :keywordize] true)
+           (assoc-in [:security :anti-forgery] false)))
+      (wrap-cookies)
+      (wrap-session)))
 
 #_{:clj-kondo/ignore [:unused-binding]}
 (defn -main [& args]
