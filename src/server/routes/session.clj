@@ -23,10 +23,10 @@
     (if user
       (-> (resp/redirect "/")
           (assoc :session {:identity (:users/email user)}))
-      (resp/status (resp/response "Invalid credentials") 401))))
+      (layout/common (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
 (defroutes session-routes
-  (GET "/session/new" [] (layout/common (view/login)))
+  (GET "/session/new" [] (layout/common (view/login {})))
   (POST "/session" request
     (login-handler (request :params)))
   (DELETE "/session" [] ()))
