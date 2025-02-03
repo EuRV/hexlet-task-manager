@@ -28,7 +28,7 @@
      [:input {:name "_method" :type "hidden" :value "delete"}]
      [:input.btn.nav-link {:type "submit" :value "Выход"}]]]])
 
-(defn common [page]
+(defn common [session page]
   (str
    (h/html (h/raw "<!DOCTYPE html>")
            [:html {:lang "ru"}
@@ -44,7 +44,9 @@
                [:button.navbar-toggler {:data-bs-toggle "collapse" :data-bs-target "#navbarToggleExternalContent"}
                 [:span.navbar-toggler-icon]]
                [:div#navbarToggleExternalContent.collapse.navbar-collapse
-                (guest-nav)]]]
+                (if (seq session)
+                  (user-nav)
+                  (guest-nav))]]]
              page
              [:footer.bg-dark.text-light
               [:div.container.py-3
