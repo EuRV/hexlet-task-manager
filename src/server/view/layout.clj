@@ -2,6 +2,16 @@
   (:require [hiccup2.core :as h])
   (:gen-class))
 
+(defn guest-nav
+  []
+  [:ul.navbar-nav.justify-content-end.w-100
+   [:li.nav-item.me-auto
+    [:a.nav-link {:href "/users"} "Пользователи"]]
+   [:li.nav-item
+    [:a.nav-link {:href "/session/new"} "Вход"]]
+   [:li.nav-item
+    [:a.nav-link {:href "/users/new"} "Регистрация"]]])
+
 (defn common [page]
   (str
    (h/html (h/raw "<!DOCTYPE html>")
@@ -18,13 +28,7 @@
                [:button.navbar-toggler {:data-bs-toggle "collapse" :data-bs-target "#navbarToggleExternalContent"}
                 [:span.navbar-toggler-icon]]
                [:div#navbarToggleExternalContent.collapse.navbar-collapse
-                [:ul.navbar-nav.justify-content-end.w-100
-                 [:li.nav-item.me-auto
-                  [:a.nav-link {:href "/users"} "Пользователи"]]
-                 [:li.nav-item
-                  [:a.nav-link {:href "/session/new"} "Вход"]]
-                 [:li.nav-item
-                  [:a.nav-link {:href "/users/new"} "Регистрация"]]]]]]
+                (guest-nav)]]]
              page
              [:footer.bg-dark.text-light
               [:div.container.py-3
