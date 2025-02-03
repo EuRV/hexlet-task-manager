@@ -12,6 +12,22 @@
    [:li.nav-item
     [:a.nav-link {:href "/users/new"} "Регистрация"]]])
 
+(defn user-nav
+  []
+  [:ul.navbar-nav.justify-content-end.w-100
+   [:li.nav-item.me-auto
+    [:a.nav-link {:href "/users"} "Пользователи"]]
+   [:li.nav-item
+    [:a.nav-link {:href "/statuses"} "Статусы"]]
+   [:li.nav-item
+    [:a.nav-link {:href "/labels"} "Метки"]]
+   [:li.nav-item
+    [:a.nav-link {:href "/tasks"} "Задачи"]]
+   [:li.nav-item
+    [:form {:action "/session" :method "post"}
+     [:input {:name "_method" :type "hidden" :value "delete"}]
+     [:input.btn.nav-link {:type "submit" :value "Выход"}]]]])
+
 (defn common [page]
   (str
    (h/html (h/raw "<!DOCTYPE html>")
