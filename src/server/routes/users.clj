@@ -9,8 +9,8 @@
   (:gen-class))
 
 (defroutes users-routes
-  (GET "/users" [] (layout/common (view/users-page (get-users))))
-  (GET "/users/new" [] (layout/common (view/users-new)))
+  (GET "/users" {:keys [session]} (layout/common session (view/users-page (get-users))))
+  (GET "/users/new" {:keys [session]} (layout/common session (view/users-new)))
   (POST "/users" req
     (add-user (req :params))
     (resp/redirect "/")))
