@@ -6,4 +6,4 @@
   (:gen-class))
 
 (defroutes home-routes
-  (GET "/" [] (layout/common (view/home))))
+  (GET "/" {:keys [session]} (layout/common session (view/home))))
