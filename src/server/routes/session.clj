@@ -24,10 +24,10 @@
       (-> (resp/redirect "/")
           (assoc :session {:id (:users/id user)
                            :email (:users/email user)}))
-      (layout/common (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
+      (layout/common {} (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
 (defroutes session-routes
-  (GET "/session/new" [] (layout/common (view/login {})))
+  (GET "/session/new" {:keys [session]} (layout/common session (view/login {})))
   (POST "/session" request
     (login-handler (request :params)))
   (DELETE "/session" [] ()))
