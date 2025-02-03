@@ -12,7 +12,7 @@
   (let [[user] (db/query-by-key
               :users
               {:email email :password-digest password}
-              {:columns [:email :password-digest]})]
+              {:columns [:id :email :password-digest]})]
     (when (and user (= password (:users/password-digest user)))
       user)))
 
@@ -22,7 +22,8 @@
         user (authenticate email password)]
     (if user
       (-> (resp/redirect "/")
-          (assoc :session {:identity (:users/email user)}))
+          (assoc :session {:id (:users/id user)
+                           :email (:users/email user)}))
       (layout/common (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
 (defroutes session-routes
