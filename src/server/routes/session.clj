@@ -26,8 +26,19 @@
                            :email (:users/email user)}))
       (layout/common {} (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
+(defn clear-session [request]
+  (let [session (:session request)
+        updated-session (dissoc session :id :email)]
+    (-> (resp/redirect "/")
+        (assoc :session updated-session))))
+
 (defroutes session-routes
-  (GET "/session/new" {:keys [session]} (layout/common session (view/login {})))
-  (POST "/session" request
+  (GET "/session/new"
+    {:keys [session]}
+    (layout/common session (view/login {})))
+  (POST "/session"
+    request
     (login-handler (request :params)))
-  (DELETE "/session" [] ()))
+  (DELETE "/session"
+    request
+    (clear-session request)))
