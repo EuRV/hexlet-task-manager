@@ -68,11 +68,6 @@
   [user]
   (db/insert-data :users user))
 
-(comment
-  (def user {:first-name "Petr"
-             :last-name "Sorokin"
-             :email "sorokin@test.com"
-             :password-digest "asdfg"})
-  
-  (validate-user user)
-  :rcf)
+(defn delete-user
+  [id]
+  (db/delete-by-key :users :id id))
