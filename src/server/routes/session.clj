@@ -17,18 +17,18 @@
       user)))
 
 (defn login-handler [request]
-  (let [email (request :email)
-        password (request :password-digest)
+  (let [email (-> request :params :email)
+        password (-> request :params :password-digest)
         user (authenticate email password)]
     (if user
       (-> (resp/redirect "/")
-          (assoc :session {:id (:users/id user)
+          (assoc :session {:user-id (:users/id user)
                            :email (:users/email user)}))
       (layout/common {} (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
 (defn clear-session [request]
   (let [session (:session request)
-        updated-session (dissoc session :id :email)]
+        updated-session (dissoc session :user-id :email)]
     (-> (resp/redirect "/")
         (assoc :session updated-session))))
 
@@ -38,7 +38,7 @@
     (layout/common session (view/login {})))
   (POST "/session"
     request
-    (login-handler (request :params)))
+    (login-handler request))
   (DELETE "/session"
     request
     (clear-session request)))
