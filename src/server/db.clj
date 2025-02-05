@@ -33,3 +33,8 @@
   [table record-data]
   (with-open [connection (jdbc/get-connection ds)]
     (sql/insert! connection table record-data jdbc/unqualified-snake-kebab-opts)))
+
+(defn delete-by-key
+  [table key value]
+  (with-open [connection (jdbc/get-connection ds)]
+    (sql/delete! connection table {key value})))
