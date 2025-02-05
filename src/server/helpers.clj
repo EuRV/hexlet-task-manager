@@ -12,3 +12,12 @@
      :fname (formatter-fname first-name last-name)
      :email email
      :date (formatter-date created-at)}))
+
+(defn to-number [value]
+  (cond
+    (number? value) value
+    (string? value) (try
+                      (Long/parseLong value)
+                      (catch Exception _
+                        nil))
+    :else nil))
