@@ -64,6 +64,10 @@
   []
   (mapv formatter-users (db/query-database (queries :list-users))))
 
+(defn get-user
+  [id]
+  (db/query-by-id :users id {:columns [:id :first-name :last-name :email :password-digest]}))
+
 (defn add-user
   [user]
   (db/insert-data :users user))
