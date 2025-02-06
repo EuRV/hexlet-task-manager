@@ -9,6 +9,21 @@
    [server.helpers :refer [to-number]])
   (:gen-class))
 
+(defn users-handler
+  [request]
+  (let [users (get-users)
+        session (:session request)]
+    (layout/common
+     session
+     (view/users-page users))))
+
+(defn users-new-handler
+  [request]
+  (let [session (:session request)]
+    (layout/common
+     session
+     (view/users-new {:errors {} :values {}}))))
+
 (defn users-create-handler
   [request]
   (let [data (-> request :params validate-user)
@@ -56,8 +71,8 @@
                     (assoc :session updated-session)))))))
 
 (defroutes users-routes
-  (GET "/users" {:keys [session]} (layout/common session (view/users-page (get-users))))
-  (GET "/users/new" {:keys [session]} (layout/common session (view/users-new {:errors {} :values {}})))
+  (GET "/users" request (users-handler request))
+  (GET "/users/new" request (users-new-handler request))
   (GET "/users/:id/edit" request (users-edit-handler request))
   (POST "/users" request (users-create-handler request))
   (PATCH "/users/:id" request (users-update-handler request))
