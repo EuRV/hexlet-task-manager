@@ -29,6 +29,17 @@
       (merge {:column-fn (:column-fn jdbc/snake-kebab-opts)
               :builder-fn rs/as-kebab-maps} opts)))))
 
+(defn query-by-id
+  ([table id] (query-by-id table id nil))
+  ([table id opts]
+   (with-open [connection (jdbc/get-connection ds)]
+     (sql/get-by-id
+      connection
+      table
+      id
+      (merge {:column-fn (:column-fn jdbc/snake-kebab-opts)
+              :builder-fn rs/as-unqualified-kebab-maps} opts)))))
+
 (defn insert-data
   [table record-data]
   (with-open [connection (jdbc/get-connection ds)]
