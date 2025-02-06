@@ -3,19 +3,34 @@
    [compojure.core :refer [defroutes GET POST PATCH DELETE]]
    [ring.util.response :as resp]
 
-   [server.models.users :refer [get-users add-user validate-user delete-user]]
+   [server.models.users :refer [get-users get-user add-user validate-user delete-user]]
    [server.view.layout :as layout]
    [server.view.users :as view]
    [server.helpers :refer [to-number]])
   (:gen-class))
 
-(defn delete-user-handler
+(defn users-edit-handler
+  [request]
+  (let [user-id (-> request :params :id to-number)
+        session-user-id (-> request :session :user-id to-number)
+        session (:session request)]
+    (cond
+      (nil? session-user-id) (resp/redirect "/")
+      (not= user-id session-user-id) (resp/redirect "/users")
+      :else (layout/common session (view/users-edit {:errors {}
+                                                     :values (get-user user-id)})))))
+
+(defn users-update-handler
+  [request]
+  (println request))
+
+(defn users-delete-handler
   [request]
   (let [user-id (-> request :params :id to-number)
         session-user-id (-> request :session :user-id to-number)]
     (cond
-      (nil? session-user-id) (println session-user-id)
-      (not= user-id session-user-id) (println (type user-id) (type session-user-id))
+      (nil? session-user-id) (resp/redirect "/")
+      (not= user-id session-user-id) (resp/redirect "/users")
       :else (do
               (delete-user user-id)
               (let [session (:session request)
@@ -26,7 +41,7 @@
 (defroutes users-routes
   (GET "/users" {:keys [session]} (layout/common session (view/users-page (get-users))))
   (GET "/users/new" {:keys [session]} (layout/common session (view/users-new {:errors {} :values {}})))
-  (GET "/users/:id/edit" request ())
+  (GET "/users/:id/edit" request (users-edit-handler request))
   (POST "/users" request
     (let [data (:params request)
           vval (validate-user data)]
@@ -41,5 +56,5 @@
         (layout/common
          (:session request)
          (view/users-new vval)))))
-  (PATCH "/users/:id" request ())
-  (DELETE "/users/:id" request (delete-user-handler request)))
+  (PATCH "/users/:id" request (users-update-handler request))
+  (DELETE "/users/:id" request (users-delete-handler request)))
