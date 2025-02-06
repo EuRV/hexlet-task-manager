@@ -9,6 +9,22 @@
    [server.helpers :refer [to-number]])
   (:gen-class))
 
+(defn users-create-handler
+  [request]
+  (let [data (-> request :params validate-user)
+        session (:session request)]
+    (if (:valid? data)
+      (try
+        (add-user (:values data))
+        (resp/redirect "/")
+        (catch Exception _
+          (layout/common
+           session
+           (view/users-new (assoc-in data [:errors :email] "Такой email уже существует")))))
+      (layout/common
+       session
+       (view/users-new data)))))
+
 (defn users-edit-handler
   [request]
   (let [user-id (-> request :params :id to-number)
@@ -17,12 +33,13 @@
     (cond
       (nil? session-user-id) (resp/redirect "/")
       (not= user-id session-user-id) (resp/redirect "/users")
-      :else (layout/common session (view/users-edit {:errors {}
-                                                     :values (get-user user-id)})))))
+      :else (layout/common
+             session
+             (view/users-edit {:errors {} :values (get-user user-id)})))))
 
 (defn users-update-handler
   [request]
-  (println request))
+  (-> request :params println))
 
 (defn users-delete-handler
   [request]
@@ -42,19 +59,6 @@
   (GET "/users" {:keys [session]} (layout/common session (view/users-page (get-users))))
   (GET "/users/new" {:keys [session]} (layout/common session (view/users-new {:errors {} :values {}})))
   (GET "/users/:id/edit" request (users-edit-handler request))
-  (POST "/users" request
-    (let [data (:params request)
-          vval (validate-user data)]
-      (if (:valid? vval)
-        (try
-          (add-user (:values vval))
-          (resp/redirect "/")
-          (catch Exception e
-            (layout/common
-             (:session request)
-             (view/users-new (assoc-in vval [:errors :email] "Такой email уже существует")))))
-        (layout/common
-         (:session request)
-         (view/users-new vval)))))
+  (POST "/users" request (users-create-handler request))
   (PATCH "/users/:id" request (users-update-handler request))
   (DELETE "/users/:id" request (users-delete-handler request)))
