@@ -11,45 +11,49 @@
 
 (defn users-handler
   [request]
-  (let [users (get-users)
-        session (:session request)]
+  (let [users (get-users)]
     (layout/common
-     session
+     request
      (view/users-page users))))
 
 (defn users-new-handler
   [request]
-  (let [session (:session request)]
-    (layout/common
-     session
-     (view/users-new {:errors {} :values {}}))))
+  (layout/common
+   request
+   (view/users-new {:errors {} :values {}})))
 
 (defn users-create-handler
   [request]
-  (let [data (-> request :params validate-user)
-        session (:session request)]
+  (let [data (-> request :params validate-user)]
     (if (:valid? data)
       (try
         (add-user (:values data))
-        (resp/redirect "/")
+        (->
+         (resp/redirect "/")
+         (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"}))
         (catch Exception _
           (layout/common
-           session
+           request
            (view/users-new (assoc-in data [:errors :email] "Такой email уже существует")))))
       (layout/common
-       session
+       request
        (view/users-new data)))))
 
 (defn users-edit-handler
   [request]
   (let [user-id (-> request :params :id to-number)
-        session-user-id (-> request :session :user-id to-number)
-        session (:session request)]
+        session-user-id (-> request :session :user-id to-number)]
     (cond
-      (nil? session-user-id) (resp/redirect "/")
-      (not= user-id session-user-id) (resp/redirect "/users")
+      (nil? session-user-id)
+      (->
+       (resp/redirect "/")
+       (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
+      (not= user-id session-user-id)
+      (->
+       (resp/redirect "/users")
+       (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
       :else (layout/common
-             session
+             request
              (view/users-edit {:errors {} :values (get-user user-id)})))))
 
 (defn users-update-handler
@@ -61,8 +65,14 @@
   (let [user-id (-> request :params :id to-number)
         session-user-id (-> request :session :user-id to-number)]
     (cond
-      (nil? session-user-id) (resp/redirect "/")
-      (not= user-id session-user-id) (resp/redirect "/users")
+      (nil? session-user-id)
+      (->
+       (resp/redirect "/")
+       (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
+      (not= user-id session-user-id)
+      (->
+       (resp/redirect "/users")
+       (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
       :else (do
               (delete-user user-id)
               (let [session (:session request)
