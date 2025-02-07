@@ -5,16 +5,12 @@
 
    [server.view.layout :as layout]
    [server.view.session :as view]
-   [server.db :as db])
+   [server.models.users :refer [get-user-by-email-password]])
   (:gen-class))
 
 (defn authenticate [email password]
-  (let [[user] (db/query-by-key
-              :users
-              {:email email :password-digest password}
-              {:columns [:id :email :password-digest]})]
-    (when (and user (= password (:users/password-digest user)))
-      user)))
+  (let [[user] (get-user-by-email-password email password)]
+    (when user user)))
 
 (defn login-handler [request]
   (let [email (-> request :params :email)
@@ -23,8 +19,8 @@
     (if user
       (-> (resp/redirect "/")
           (assoc :flash {:type "success" :message "Вы залогинены"})
-          (assoc :session {:user-id (:users/id user)
-                           :email (:users/email user)}))
+          (assoc :session {:user-id (:id user)
+                           :email (:email user)}))
       (layout/common {} (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
 (defn clear-session [request]
