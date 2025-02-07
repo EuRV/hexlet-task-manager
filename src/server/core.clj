@@ -20,7 +20,8 @@
       (wrap-defaults
        (-> site-defaults 
            (assoc-in [:params :keywordize] true)
-           (assoc-in [:security :anti-forgery] false)))
+           (assoc-in [:security :anti-forgery] false)
+           (assoc-in [:session :flash] true)))
       (wrap-cookies)
       (wrap-session)))
 
