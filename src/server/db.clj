@@ -27,7 +27,7 @@
       table
       data
       (merge {:column-fn (:column-fn jdbc/snake-kebab-opts)
-              :builder-fn rs/as-kebab-maps} opts)))))
+              :builder-fn rs/as-unqualified-kebab-maps} opts)))))
 
 (defn query-by-id
   ([table id] (query-by-id table id nil))
@@ -44,6 +44,11 @@
   [table record-data]
   (with-open [connection (jdbc/get-connection ds)]
     (sql/insert! connection table record-data jdbc/unqualified-snake-kebab-opts)))
+
+(defn update-data
+  [table record-data where-params]
+  (with-open [connection (jdbc/get-connection ds)]
+    (sql/update! connection table record-data where-params jdbc/unqualified-snake-kebab-opts)))
 
 (defn delete-by-key
   [table key value]
