@@ -22,6 +22,7 @@
         user (authenticate email password)]
     (if user
       (-> (resp/redirect "/")
+          (assoc :flash {:type "success" :message "Вы залогинены"})
           (assoc :session {:user-id (:users/id user)
                            :email (:users/email user)}))
       (layout/common {} (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
@@ -30,12 +31,13 @@
   (let [session (:session request)
         updated-session (dissoc session :user-id :email)]
     (-> (resp/redirect "/")
+        (assoc :flash {:type "info" :message "Вы разлогинены"})
         (assoc :session updated-session))))
 
 (defroutes session-routes
   (GET "/session/new"
-    {:keys [session]}
-    (layout/common session (view/login {})))
+    request
+    (layout/common request (view/login {})))
   (POST "/session"
     request
     (login-handler request))
