@@ -35,9 +35,9 @@
 
 (s/def :users/person
   (s/keys :req-un [:users/first-name
-                :users/last-name
-                :users/email
-                :users/password-digest]))
+                   :users/last-name
+                   :users/email
+                   :users/password-digest]))
 
 (def spec-errors
   {::at-least-one "Должно быть не менее одного символа"
@@ -81,6 +81,10 @@
 (defn add-user
   [user]
   (db/insert-data :users user))
+
+(defn update-user
+  [id values]
+  (db/update-data :users values {:id id}))
 
 (defn delete-user
   [id]
