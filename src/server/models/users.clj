@@ -66,7 +66,17 @@
 
 (defn get-user
   [id]
-  (db/query-by-id :users id {:columns [:id :first-name :last-name :email :password-digest]}))
+  (db/query-by-id
+   :users
+   id
+   {:columns [:id :first-name :last-name :email :password-digest]}))
+
+(defn get-user-by-email-password
+  [email password]
+  (db/query-by-key
+   :users
+   {:email email :password-digest password}
+   {:columns [:id :email :password-digest]}))
 
 (defn add-user
   [user]
