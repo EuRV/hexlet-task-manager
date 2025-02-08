@@ -1,0 +1,8 @@
+{:layout {:users "Пользователи"
+          :statuses "Статусы"
+          :tasks "Задачи"
+          :labels "Метки"
+          :session-new "Вход"
+          :users-new "Регистрация"
+          :users-edit "Изменение пользователя"
+          :signOut "Выход"}}
