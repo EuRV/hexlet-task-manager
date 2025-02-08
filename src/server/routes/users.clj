@@ -3,10 +3,10 @@
    [compojure.core :refer [defroutes GET POST PATCH DELETE]]
    [ring.util.response :as resp]
 
-   [server.models.users :refer [get-users get-user add-user validate-user delete-user]]
+   [server.models.users :refer [get-users get-user add-user validate-user delete-user update-user]]
    [server.view.layout :as layout]
    [server.view.users :as view]
-   [server.helpers :refer [to-number]])
+   [server.helpers :refer [to-number clean-data]])
   (:gen-class))
 
 (defn users-handler
@@ -58,7 +58,19 @@
 
 (defn users-update-handler
   [request]
-  (-> request :params println))
+  (let [user-id (-> request :params :id to-number)
+        data (-> request :params clean-data validate-user)]
+    (if (:valid? data)
+      (try
+        (update-user user-id (:values data))
+        (->
+         (resp/redirect "/users")
+         (assoc :flash {:type "info" :message "Пользователь успешно изменён"}))
+        (catch Exception e
+          (println (ex-message e))))
+      (layout/common
+       request
+       (view/users-edit data)))))
 
 (defn users-delete-handler
   [request]
