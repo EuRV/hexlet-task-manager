@@ -5,6 +5,7 @@
             [ring.middleware.session :refer [wrap-session]]
             [compojure.core :refer [defroutes routes]]
             
+            [server.middleware :refer [wrap-i18n]]
             [server.routes.home :refer [home-routes]]
             [server.routes.users :refer [users-routes]]
             [server.routes.session :refer [session-routes]])
@@ -23,7 +24,8 @@
            (assoc-in [:security :anti-forgery] false)
            (assoc-in [:session :flash] true)))
       (wrap-cookies)
-      (wrap-session)))
+      (wrap-session)
+      (wrap-i18n)))
 
 #_{:clj-kondo/ignore [:unused-binding]}
 (defn -main [& args]
