@@ -21,3 +21,10 @@
                       (catch Exception _
                         nil))
     :else nil))
+
+(defn clean-data
+  [data]
+  (reduce-kv (fn [init key value]
+               (if (key #{:first-name :last-name :email :password-digest}) (assoc init key value) init))
+             {}
+             data))
