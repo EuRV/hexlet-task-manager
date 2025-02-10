@@ -21,7 +21,7 @@
           (assoc :flash {:type "success" :message "Вы залогинены"})
           (assoc :session {:user-id (:id user)
                            :email (:email user)}))
-      (layout/common {} (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
+      (layout/common {} :session-new (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
 
 (defn clear-session [request]
   (let [session (:session request)
@@ -33,7 +33,7 @@
 (defroutes session-routes
   (GET "/session/new"
     request
-    (layout/common request (view/login {})))
+    (layout/common request :session-new (view/login {})))
   (POST "/session"
     request
     (login-handler request))
