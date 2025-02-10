@@ -8,13 +8,15 @@
             [server.middleware :refer [wrap-i18n]]
             [server.routes.home :refer [home-routes]]
             [server.routes.users :refer [users-routes]]
-            [server.routes.session :refer [session-routes]])
+            [server.routes.session :refer [session-routes]]
+            [server.routes.statuses :refer [statuses-routes]])
   (:gen-class))
 
 (defroutes app-routes
   (routes home-routes
           users-routes
-          session-routes))
+          session-routes
+          statuses-routes))
 
 (def app
   (-> #'app-routes
