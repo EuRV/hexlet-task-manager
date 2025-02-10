@@ -6,4 +6,4 @@
   (:gen-class))
 
 (defroutes home-routes
-  (GET "/" request (layout/common request (view/home))))
+  (GET "/" request (layout/common request nil (view/home))))
