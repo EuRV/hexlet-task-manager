@@ -14,12 +14,14 @@
   (let [users (get-users)]
     (layout/common
      request
+     :users
      (view/users-page users))))
 
 (defn users-new-handler
   [request]
   (layout/common
    request
+   :users-new
    (view/users-new {:errors {} :values {}})))
 
 (defn users-create-handler
@@ -34,9 +36,11 @@
         (catch Exception _
           (layout/common
            request
+           :users-new
            (view/users-new (assoc-in data [:errors :email] "Такой email уже существует")))))
       (layout/common
        request
+       :users-new
        (view/users-new data)))))
 
 (defn users-edit-handler
@@ -54,6 +58,7 @@
        (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
       :else (layout/common
              request
+             :users-edit
              (view/users-edit {:errors {} :values (get-user user-id)})))))
 
 (defn users-update-handler
@@ -70,6 +75,7 @@
           (println (ex-message e))))
       (layout/common
        request
+       :users-edit
        (view/users-edit data)))))
 
 (defn users-delete-handler
