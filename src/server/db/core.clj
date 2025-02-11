@@ -1,4 +1,4 @@
-(ns server.db
+(ns server.db.core
   (:require    [next.jdbc :as jdbc]
                [next.jdbc.sql :as sql]
                [next.jdbc.result-set :as rs])
