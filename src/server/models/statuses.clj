@@ -1,7 +1,7 @@
 (ns server.models.statuses
   (:require [clojure.spec.alpha :as s]
   
-            [server.db :as db])
+            [server.db.core :as db])
   (:gen-class))
 
 (defn at-least [n]

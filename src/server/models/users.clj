@@ -1,7 +1,7 @@
 (ns server.models.users
   (:require [clojure.spec.alpha :as s]
 
-            [server.db :as db]
+            [server.db.core :as db]
             [server.db.sql.queries :refer [queries]]
             [server.helpers :refer [formatter-users]])
   (:gen-class))
