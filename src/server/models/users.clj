@@ -1,8 +1,7 @@
 (ns server.models.users
   (:require [clojure.spec.alpha :as s]
 
-            [server.db.core :as db]
-            [server.db.sql.queries :refer [queries]]
+            [server.db.sql.queries :as db]
             [server.helpers :refer [formatter-users]])
   (:gen-class))
 
@@ -62,7 +61,7 @@
 
 (defn get-users
   []
-  (mapv formatter-users (db/query-database (queries :list-users))))
+  (mapv formatter-users (db/query-database "SELECT * FROM users ORDER BY id ASC")))
 
 (defn get-user
   [id]
