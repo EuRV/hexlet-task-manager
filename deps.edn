@@ -20,4 +20,6 @@
  {:dev
   {:extra-paths ["dev"]
    :extra-deps {ring/ring-devel {:mvn/version "1.6.3"}}
-   :main-opts ["-m" "hotreload"]}}}
+   :main-opts ["-m" "hotreload"]}
+  :db-migrate {:main-opts ["-m" "server.db.core" "migrate"]}
+  :db-rollback {:main-opts ["-m" "server.db.core" "rollback"]}}}
