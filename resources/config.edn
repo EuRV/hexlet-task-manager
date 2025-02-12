@@ -1,8 +1,8 @@
-{:migratus
- {:store :database
-  :migration-dir "migrations"
-  :db {:classname "org.postgresql.Driver"
-       :subprotocol "postgresql"
-       :subname "//localhost:5432/testdb"
-       :user "eurv"
-       :password "pgpwd"}}}
+{:db {:dbtype "postgresql"
+      :dbname "testdb"
+      :host "127.0.0.1"
+      :port 5432
+      :user "eurv"
+      :password "pgpwd"}
+ :migratus {:store :database
+            :migration-dir "resources/migrations/"}}
