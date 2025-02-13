@@ -4,7 +4,6 @@
    [ring.util.response :as resp]
 
    [server.models.users :refer [get-users get-user add-user validate-user delete-user update-user]]
-   [server.view.layout :as layout]
    [server.view.users :as view]
    [server.helpers :refer [to-number clean-data]])
   (:gen-class))
@@ -12,17 +11,11 @@
 (defn users-handler
   [request]
   (let [users (get-users)]
-    (layout/common
-     request
-     :users
-     (view/users-page users))))
+    (view/users-page request users)))
 
 (defn users-new-handler
   [request]
-  (layout/common
-   request
-   :users-new
-   (view/users-new {:errors {} :values {}})))
+  (view/users-new request {:errors {} :values {}}))
 
 (defn users-create-handler
   [request]
@@ -34,14 +27,8 @@
          (resp/redirect "/")
          (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"}))
         (catch Exception _
-          (layout/common
-           request
-           :users-new
-           (view/users-new (assoc-in data [:errors :email] "Такой email уже существует")))))
-      (layout/common
-       request
-       :users-new
-       (view/users-new data)))))
+          (view/users-new request (assoc-in data [:errors :email] "Такой email уже существует"))))
+      (view/users-new request data))))
 
 (defn users-edit-handler
   [request]
@@ -56,10 +43,7 @@
       (->
        (resp/redirect "/users")
        (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
-      :else (layout/common
-             request
-             :users-edit
-             (view/users-edit {:errors {} :values (get-user user-id)})))))
+      :else (view/users-edit request {:errors {} :values (get-user user-id)}))))
 
 (defn users-update-handler
   [request]
@@ -73,10 +57,7 @@
          (assoc :flash {:type "info" :message "Пользователь успешно изменён"}))
         (catch Exception e
           (println (ex-message e))))
-      (layout/common
-       request
-       :users-edit
-       (view/users-edit data)))))
+      (view/users-edit request data))))
 
 (defn users-delete-handler
   [request]
