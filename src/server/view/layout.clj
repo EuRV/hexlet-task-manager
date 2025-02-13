@@ -35,7 +35,7 @@
      [:input {:name "_method" :type "hidden" :value "delete"}]
      [:input.btn.nav-link {:type "submit" :value (-> t :layout :signOut)}]]]])
 
-(defn common [request header page]
+(defn common [request body]
   (let [t (:translations request)
         session (:session request)
         flash (:flash request)]
@@ -60,8 +60,7 @@
                     (guest-nav t))]]]
                [:div.container.wrapper.flex-grow-1
                 (when flash (render-flash flash))
-                [:h1.display-4.fw-bold.mt-4 (get-in t [:layout header] "")]
-                page]
+                body]
                [:footer.bg-dark.text-light
                 [:div.container.py-3
                  [:p.lead.mb-0 "© Hexlet Ltd, 2021"]]]]]))))
