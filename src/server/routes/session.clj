@@ -3,10 +3,13 @@
    [compojure.core :refer [defroutes GET POST DELETE]]
    [ring.util.response :as resp]
 
-   [server.view.layout :as layout]
    [server.view.session :as view]
    [server.models.users :refer [get-user-by-email-password]])
   (:gen-class))
+
+(defn session-new-handler
+  [request]
+  (view/login request {}))
 
 (defn authenticate [email password]
   (let [[user] (get-user-by-email-password email password)]
@@ -21,7 +24,7 @@
           (assoc :flash {:type "success" :message "Вы залогинены"})
           (assoc :session {:user-id (:id user)
                            :email (:email user)}))
-      (layout/common {} :session-new (view/login {:error {:email email :message "Неправильный емейл или пароль"}})))))
+      (view/login request {:error {:email email :message "Неправильный емейл или пароль"}}))))
 
 (defn clear-session [request]
   (let [session (:session request)
@@ -33,7 +36,7 @@
 (defroutes session-routes
   (GET "/session/new"
     request
-    (layout/common request :session-new (view/login {})))
+    (session-new-handler request))
   (POST "/session"
     request
     (login-handler request))
