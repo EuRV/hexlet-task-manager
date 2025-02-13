@@ -7,19 +7,15 @@
    [server.view.mixins :refer [table-render]])
   (:gen-class))
 
-(def data {:entity "users"
-           :headings {:id "ID"
-                      :fname "Полное имя"
-                      :email "Email"
-                      :date "Дата создания"
-                      :action "Действия"}})
+(def data {:users [:id :fname :email :date :action]})
 
 (defn users-page [request content]
   (layout/common
    request
-   (html
-    [:h1.display-4.fw-bold.mt-4 (get-in request [:translations :layout :users] "Default")]
-    (#(table-render data %) content))))
+   (let [i18n (get-in request [:translations :tables])]
+     (html
+      [:h1.display-4.fw-bold.mt-4 (get-in request [:translations :layout :users] "Default")]
+      (table-render data i18n content)))))
 
 (defn users-new [request {:keys [errors values]}]
   (layout/common
