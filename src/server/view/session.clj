@@ -19,7 +19,7 @@
           [:div.form-floating.mb-3
            [:input {:id "data-email"
                     :name "email"
-                    :placeholder "Email"
+                    :placeholder (get-in request [:translations :form :email] "Default")
                     :type "text"
                     :value (if (seq error)
                              (:email error)
@@ -28,11 +28,11 @@
                              "form-control is-invalid"
                              "form-control")}]
            (when (seq error) [:div.form-control-feedback.invalid-feedback (error :message)])
-           [:label {:for "data-email"} "Email"]]
+           [:label {:for "data-email"} (get-in request [:translations :form :email] "Default")]]
           [:div.form-floating.mb-3
            [:input.form-control {:id "data-password"
                                  :name "password-digest"
                                  :placeholder "Пароль"
                                  :type "password"}]
-           [:label {:for "data-password"} "Пароль"]]
+           [:label {:for "data-password"} (get-in request [:translations :form :password-digest] "Default")]]
           [:input.btn.btn-primary {:type "submit" :value (get-in request [:translations :session :sign-in])}]]]]]]])))
