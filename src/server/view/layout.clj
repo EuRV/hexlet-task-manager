@@ -11,19 +11,15 @@
 
 (defn guest-nav
   [t]
-  [:ul.navbar-nav.justify-content-end.w-100
-   [:li.nav-item.me-auto
-    [:a.nav-link {:href "/users"} (-> t :layout :users)]]
+  (h/html
    [:li.nav-item
     [:a.nav-link {:href "/session/new"} (-> t :layout :session-new)]]
    [:li.nav-item
-    [:a.nav-link {:href "/users/new"} (-> t :layout :users-new)]]])
+    [:a.nav-link {:href "/users/new"} (-> t :layout :users-new)]]))
 
 (defn user-nav
   [t]
-  [:ul.navbar-nav.justify-content-end.w-100
-   [:li.nav-item.me-auto
-    [:a.nav-link {:href "/users"} (-> t :layout :users)]]
+  (h/html
    [:li.nav-item
     [:a.nav-link {:href "/statuses"} (-> t :layout :statuses)]]
    [:li.nav-item
@@ -33,7 +29,7 @@
    [:li.nav-item
     [:form {:action "/session" :method "post"}
      [:input {:name "_method" :type "hidden" :value "delete"}]
-     [:input.btn.nav-link {:type "submit" :value (-> t :layout :signOut)}]]]])
+     [:input.btn.nav-link {:type "submit" :value (-> t :layout :session-clear)}]]]))
 
 (defn common [request body]
   (let [t (:translations request)
@@ -45,19 +41,22 @@
               [:head
                [:meta {:charset "UTF-8"}]
                [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
-               [:title "Hexlet Task Manager"]
+               [:title (-> t :layout :title)]
                (include-css "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css")
                (include-js "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js")]
               [:body.d-flex.flex-column.min-vh-100.bg-light
                [:nav.navbar.navbar-expand-lg.navbar-light.bg-white
                 [:div.container
-                 [:a.navbar-brand {:href "/"} "Менеджер задач"]
+                 [:a.navbar-brand {:href "/"} (-> t :layout :name)]
                  [:button.navbar-toggler {:data-bs-toggle "collapse" :data-bs-target "#navbarToggleExternalContent"}
                   [:span.navbar-toggler-icon]]
                  [:div#navbarToggleExternalContent.collapse.navbar-collapse
-                  (if (seq session)
-                    (user-nav t)
-                    (guest-nav t))]]]
+                  [:ul.navbar-nav.justify-content-end.w-100
+                   [:li.nav-item.me-auto
+                    [:a.nav-link {:href "/users"} (-> t :layout :users)]]
+                   (if (seq session)
+                     (user-nav t)
+                     (guest-nav t))]]]]
                [:div.container.wrapper.flex-grow-1
                 (when flash (render-flash flash))
                 body]
