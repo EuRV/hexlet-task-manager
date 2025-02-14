@@ -31,48 +31,48 @@
           [:div.form-floating.mb-3
            [:input.form-control {:id "data-first-name"
                                  :name "first-name"
-                                 :placeholder "Имя"
+                                 :placeholder (get-in request [:translations :form :first-name] "Default")
                                  :type "text"
                                  :value (:first-name values)
                                  :class (if (contains? errors :first-name)
                                           "form-control is-invalid"
                                           "form-control")}]
            (when (:first-name errors) [:div.form-control-feedback.invalid-feedback (:first-name errors)])
-           [:label {:for "data-first-name"} (get-in request [:translations :users :first-name] "")]]
+           [:label {:for "data-first-name"} (get-in request [:translations :form :first-name] "Default")]]
           [:div.form-floating.mb-3
            [:input.form-control {:id "data-last-name"
                                  :name "last-name"
-                                 :placeholder "Фамилия"
+                                 :placeholder (get-in request [:translations :form :last-name] "Default")
                                  :type "text"
                                  :value (:last-name values)
                                  :class (if (contains? errors :last-name)
                                           "form-control is-invalid"
                                           "form-control")}]
            (when (:last-name errors) [:div.form-control-feedback.invalid-feedback (:last-name errors)])
-           [:label {:for "data-last-name"} "Фамилия"]]
+           [:label {:for "data-last-name"} (get-in request [:translations :form :last-name] "Default")]]
           [:div.form-floating.mb-3
            [:input.form-control {:id "data-email"
                                  :name "email"
-                                 :placeholder "Email"
+                                 :placeholder (get-in request [:translations :form :email] "Default")
                                  :type "text"
                                  :value (:email values)
                                  :class (if (contains? errors :email)
                                           "form-control is-invalid"
                                           "form-control")}]
            (when (:email errors) [:div.form-control-feedback.invalid-feedback (:email errors)])
-           [:label {:for "data-email"} "Email"]]
+           [:label {:for "data-email"} (get-in request [:translations :form :email] "Default")]]
           [:div.form-floating.mb-3
            [:input.form-control {:id "data-password"
                                  :name "password-digest"
-                                 :placeholder "Пароль"
+                                 :placeholder (get-in request [:translations :form :password-digest] "Default")
                                  :type "password"
                                  :value (:password-digest values)
                                  :class (if (contains? errors :password-digest)
                                           "form-control is-invalid"
                                           "form-control")}]
            (when (:password-digest errors) [:div.form-control-feedback.invalid-feedback (:password-digest errors)])
-           [:label {:for "data-password"} "Пароль"]]
-          [:input.btn.btn-primary {:type "submit" :value "Сохранить"}]]]]]]])))
+           [:label {:for "data-password"} (get-in request [:translations :form :password-digest] "Default")]]
+          [:input.btn.btn-primary {:type "submit" :value (get-in request [:translations :form :btn-save] "Default")}]]]]]]])))
 
 (defn users-edit [request {:keys [errors values]}]
   (layout/common
@@ -82,43 +82,43 @@
     (form/form-to [:post (format "/users/%s" (:id values))]
                   [:div.form-floating.mb-3
                    [:input#data-first-name.form-control {:name "first-name"
-                                                         :placeholder "Имя"
+                                                         :placeholder (get-in request [:translations :form :first-name] "Default")
                                                          :type "text"
                                                          :value (:first-name values)
                                                          :class (if (contains? errors :first-name)
                                                                   "form-control is-invalid"
                                                                   "form-control")}]
                    (when (:first-name errors) [:div.form-control-feedback.invalid-feedback (:first-name errors)])
-                   (form/label {:for "data-first-name"} :first-name (get-in request [:translations :users :first-name] ""))]
+                   (form/label {:for "data-first-name"} :first-name (get-in request [:translations :form :first-name] "Default"))]
                   [:div.form-floating.mb-3
                    [:input#data-last-name.form-control {:name "last-name"
-                                                        :placeholder "Фамилия"
+                                                        :placeholder (get-in request [:translations :form :last-name] "Default")
                                                         :type "text"
                                                         :value (:last-name values)
                                                         :class (if (contains? errors :last-name)
                                                                  "form-control is-invalid"
                                                                  "form-control")}]
                    (when (:last-name errors) [:div.form-control-feedback.invalid-feedback (:last-name errors)])
-                   [:label {:for "data-last-name"} "Фамилия"]]
+                   [:label {:for "data-last-name"} (get-in request [:translations :form :last-name] "Default")]]
                   [:div.form-floating.mb-3
                    [:input#data-email.form-control {:name "email"
-                                                    :placeholder "Email"
+                                                    :placeholder (get-in request [:translations :form :email] "Default")
                                                     :type "text"
                                                     :value (:email values)
                                                     :class (if (contains? errors :email)
                                                              "form-control is-invalid"
                                                              "form-control")}]
                    (when (:email errors) [:div.form-control-feedback.invalid-feedback (:email errors)])
-                   [:label {:for "data-email"} "Email"]]
+                   [:label {:for "data-email"} (get-in request [:translations :form :email] "Default")]]
                   [:div.form-floating.mb-3
                    [:input#data-password.form-control {:name "password-digest"
-                                                       :placeholder "Пароль"
+                                                       :placeholder (get-in request [:translations :form :password-digest] "Default")
                                                        :type "password"
                                                        :value (:password-digest values)
                                                        :class (if (contains? errors :password-digest)
                                                                 "form-control is-invalid"
                                                                 "form-control")}]
                    (when (:password-digest errors) [:div.form-control-feedback.invalid-feedback (:password-digest errors)])
-                   [:label {:for "data-password"} "Пароль"]]
+                   [:label {:for "data-password"} (get-in request [:translations :form :password-digest] "Default")]]
                   (form/hidden-field :_method :PATCH)
-                  (form/submit-button {:class "btn btn-primary"} "Изменить")))))
+                  (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-change] "Default"))))))
