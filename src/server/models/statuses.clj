@@ -40,7 +40,12 @@
 
 (defn get-statuses
   []
-  (db/query-database "SELECT id, name, created_at FROM statuses ORDER BY id ASC"))
+  (try
+    (db/query-database "SELECT id, name, created_at FROM statuses ORDER BY id ASC")
+    (catch Exception _
+      {:error
+       {:message "Ошибка базы данных"
+        :value []}})))
 
 (defn create-statuses
   [statuses]
