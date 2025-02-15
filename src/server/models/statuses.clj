@@ -42,6 +42,6 @@
   []
   (db/query-database "SELECT id, name, created_at FROM statuses ORDER BY id ASC"))
 
-(defn add-statuses
+(defn create-statuses
   [statuses]
   (db/insert-data :statuses statuses))
