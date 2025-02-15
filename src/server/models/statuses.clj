@@ -19,6 +19,25 @@
 (s/def :statuses/entity
   (s/keys :req-un [:statuses/name]))
 
+(def spec-errors
+  {::at-least-one "Должно быть не менее одного символа"
+   ::string "Должна быть строкой"})
+
+(defn validate-statuses
+  "Validates a statuses map and returns a map with :valid? and :errors keys."
+  [statuses]
+  (if (s/valid? :statuses/entity statuses)
+    {:valid? true :errors {} :values statuses}
+    {:valid? false
+     :errors (->> (s/explain-data :statuses/entity statuses)
+                  :clojure.spec.alpha/problems
+                  (reduce (fn
+                            [init problem]
+                            (assoc init (-> problem :in last) (get spec-errors (-> problem :via peek))))
+                          {}))
+     :values (->> (s/explain-data :statuses/entity statuses)
+                  :clojure.spec.alpha/value)}))
+
 (defn get-statuses
   []
   (db/query-database "SELECT id, name, created_at FROM statuses ORDER BY id ASC"))
