@@ -23,7 +23,7 @@
       (table-render data i18n content)))))
 
 (defn statuses-new
-  [request]
+  [request {:keys [errors values]}]
   (layout/common
    request
    (html
@@ -33,7 +33,10 @@
                    [:input#data-name.form-control {:name "name"
                                                    :placeholder (get-in request [:translations :form :name] "Default")
                                                    :type "text"
-                                                   :value ""
-                                                   :class "form-control"}]
+                                                   :value (:name values)
+                                                   :class (if (contains? errors :name)
+                                                            "form-control is-invalid"
+                                                            "form-control")}]
+                   (when (:name errors) [:div.form-control-feedback.invalid-feedback (:name errors)])
                    (form/label {:for "data-name"} :name (get-in request [:translations :form :name] "Default"))]
                   (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-create] "Default"))))))
