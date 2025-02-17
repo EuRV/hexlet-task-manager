@@ -61,7 +61,10 @@
 
 (defn get-users
   []
-  (mapv formatter-users (db/query-database "SELECT * FROM users ORDER BY id ASC")))
+  (let [users (db/query-database "SELECT * FROM users ORDER BY id ASC")]
+    (if (seq (:error users))
+      users
+      (mapv formatter-users users))))
 
 (defn get-user
   [id]
