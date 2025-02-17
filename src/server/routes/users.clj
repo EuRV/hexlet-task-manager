@@ -14,8 +14,9 @@
     (view/users-page request users)))
 
 (defn users-new-handler
-  [request]
-  (view/users-new request {:errors {} :values {}}))
+  ([request] (users-new-handler request {:errors {} :values {}}))
+  ([request data]
+   (view/users-new request data)))
 
 (defn users-create-handler
   [request]
