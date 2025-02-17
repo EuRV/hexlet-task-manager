@@ -10,7 +10,10 @@
 (defn query-database
   [sql-statement]
   (with-open [connection (jdbc/get-connection ds)]
-    (sql/query connection [sql-statement] jdbc/snake-kebab-opts)))
+    (sql/query
+     connection
+     [sql-statement]
+     {:builder-fn rs/as-unqualified-kebab-maps})))
 
 (defn query-by-key
   ([table data] (query-by-key table data nil))
