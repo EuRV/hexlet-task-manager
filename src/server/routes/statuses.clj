@@ -4,7 +4,8 @@
    [ring.util.response :as resp]
 
    [server.models.statuses :as models]
-   [server.view.statuses :as view])
+   [server.view.statuses :as view]
+   [server.helpers :refer [to-number]])
   (:gen-class))
 
 (defn statuses-handler
@@ -25,6 +26,11 @@
      (view/statuses-new request data)
      (resp/redirect "/"))))
 
+(defn statuses-edit-handler
+  [request]
+  (let [status-id (-> request :params :id to-number)]
+    (view/statuses-edit request {:errors {} :values (models/get-status status-id)})))
+
 (defn statuses-create-handler
   [request]
   (let [data (-> request :params models/validate-statuses)]
@@ -44,4 +50,5 @@
 (defroutes statuses-routes
   (GET "/statuses" request (statuses-handler request))
   (GET "/statuses/new" request (statuses-new-handler request))
+  (GET "/statuses/:id/edit" request (statuses-edit-handler request))
   (POST "/statuses" request (statuses-create-handler request)))
