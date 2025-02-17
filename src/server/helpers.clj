@@ -7,7 +7,7 @@
   (format "%s %s" fname lname))
 
 (defn formatter-users [user]
-  (let [{:keys [users/id users/first-name users/last-name users/email users/created-at]} user]
+  (let [{:keys [id first-name last-name email created-at]} user]
     {:id id
      :fname (formatter-fname first-name last-name)
      :email email
