@@ -9,11 +9,16 @@
 
 (defn query-database
   [sql-statement]
-  (with-open [connection (jdbc/get-connection ds)]
-    (sql/query
-     connection
-     [sql-statement]
-     {:builder-fn rs/as-unqualified-kebab-maps})))
+  (try
+    (with-open [connection (jdbc/get-connection ds)]
+      (sql/query
+       connection
+       [sql-statement]
+       {:builder-fn rs/as-unqualified-kebab-maps}))
+    (catch Exception _
+        {:error
+         {:message "Ошибка базы данных"
+          :value []}})))
 
 (defn query-by-key
   ([table data] (query-by-key table data nil))
@@ -51,3 +56,7 @@
   [table key value]
   (with-open [connection (jdbc/get-connection ds)]
     (sql/delete! connection table {key value})))
+
+(comment
+  
+  :rcf)
