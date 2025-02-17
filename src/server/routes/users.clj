@@ -11,7 +11,11 @@
 (defn users-handler
   [request]
   (let [users (get-users)]
-    (view/users-page request users)))
+    (if (seq (:error users))
+      (->
+       (assoc request :flash {:type "danger" :message (-> users :error :message)})
+       (view/users-page (-> users :error :value)))
+      (view/users-page request users))))
 
 (defn users-new-handler
   ([request] (users-new-handler request {:errors {} :values {}}))
