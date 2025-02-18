@@ -53,3 +53,7 @@
 (defn update-status
   [id values]
   (db/update-data :statuses values {:id id}))
+
+(defn delete-status
+  [id]
+  (db/delete-by-key :statuses :id id))
