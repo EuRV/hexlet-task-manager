@@ -1,6 +1,6 @@
 (ns server.routes.statuses
   (:require
-   [compojure.core :refer [defroutes GET POST PATCH]]
+   [compojure.core :refer [defroutes GET POST PATCH DELETE]]
    [ring.util.response :as resp]
 
    [server.models.statuses :as models]
@@ -51,7 +51,6 @@
   [request]
   (let [status-id (-> request :params :id to-number)
         data (-> request :params (clean-data #{:name}) models/validate-statuses)]
-    (println data)
     (if (:valid? data)
       (try
         (models/update-status status-id (:values data))
@@ -65,9 +64,18 @@
        (assoc :flash {:type "danger" :message "Не удалось изменить статус"})
        (view/statuses-edit data)))))
 
+(defn statuses-delete-handler
+  [request]
+  (let [status-id (-> request :params :id to-number)]
+    (models/delete-status status-id)
+    (->
+     (resp/redirect "/statuses")
+     (assoc :flash {:type "info" :message "Статус успешно удалён"}))))
+
 (defroutes statuses-routes
   (GET "/statuses" request (statuses-handler request))
   (GET "/statuses/new" request (statuses-new-handler request))
   (GET "/statuses/:id/edit" request (statuses-edit-handler request))
   (POST "/statuses" request (statuses-create-handler request))
-  (PATCH "/statuses/:id" request (statuses-update-handler request)))
+  (PATCH "/statuses/:id" request (statuses-update-handler request))
+  (DELETE "/statuses/:id" request (statuses-delete-handler request)))
