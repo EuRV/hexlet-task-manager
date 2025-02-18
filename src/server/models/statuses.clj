@@ -38,6 +38,10 @@
      :values (->> (s/explain-data :statuses/entity statuses)
                   :clojure.spec.alpha/value)}))
 
+(defn create-statuses
+  [statuses]
+  (db/insert-data :statuses statuses))
+
 (defn get-statuses
   []
   (db/query-database "SELECT id, name, created_at FROM statuses ORDER BY id ASC"))
@@ -46,6 +50,6 @@
   [id]
   (db/query-by-id :statuses id))
 
-(defn create-statuses
-  [statuses]
-  (db/insert-data :statuses statuses))
+(defn update-status
+  [id values]
+  (db/update-data :statuses values {:id id}))
