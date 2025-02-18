@@ -53,7 +53,7 @@
 (defn users-update-handler
   [request]
   (let [user-id (-> request :params :id to-number)
-        data (-> request :params clean-data validate-user)]
+        data (-> request :params (clean-data #{:first-name :last-name :email :password-digest}) validate-user)]
     (if (:valid? data)
       (try
         (update-user user-id (:values data))
