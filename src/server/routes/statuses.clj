@@ -1,11 +1,11 @@
 (ns server.routes.statuses
   (:require
-   [compojure.core :refer [defroutes GET POST]]
+   [compojure.core :refer [defroutes GET POST PATCH]]
    [ring.util.response :as resp]
 
    [server.models.statuses :as models]
    [server.view.statuses :as view]
-   [server.helpers :refer [to-number]])
+   [server.helpers :refer [to-number clean-data]])
   (:gen-class))
 
 (defn statuses-handler
@@ -47,8 +47,27 @@
            (view/statuses-new (assoc-in data [:errors :name] "Такой статус уже существует")))))
       (view/statuses-new request data))))
 
+(defn statuses-update-handler
+  [request]
+  (let [status-id (-> request :params :id to-number)
+        data (-> request :params (clean-data #{:name}) models/validate-statuses)]
+    (println data)
+    (if (:valid? data)
+      (try
+        (models/update-status status-id (:values data))
+        (->
+         (resp/redirect "/statuses")
+         (assoc :flash {:type "info" :message "Статус успешно изменён"}))
+        (catch Exception e
+          (println (ex-message e))))
+      (->
+       request 
+       (assoc :flash {:type "danger" :message "Не удалось изменить статус"})
+       (view/statuses-edit data)))))
+
 (defroutes statuses-routes
   (GET "/statuses" request (statuses-handler request))
   (GET "/statuses/new" request (statuses-new-handler request))
   (GET "/statuses/:id/edit" request (statuses-edit-handler request))
-  (POST "/statuses" request (statuses-create-handler request)))
+  (POST "/statuses" request (statuses-create-handler request))
+  (PATCH "/statuses/:id" request (statuses-update-handler request)))
