@@ -1,8 +1,35 @@
-{:layout {:users "Пользователи"
+{:home {:welcome "Привет от Хекслета!"}
+ :layout {:title "Hexlet Task Manager"
+          :name "Менеджер задач"
+          :users "Пользователи"
           :statuses "Статусы"
           :tasks "Задачи"
           :labels "Метки"
           :session-new "Вход"
+          :session-clear "Выход"
+          :statuses-new "Создание статуса"
+          :statuses-edit "Изменение статуса"
           :users-new "Регистрация"
-          :users-edit "Изменение пользователя"
-          :signOut "Выход"}}
+          :users-edit "Изменение пользователя"}
+ :session {:sign-in "Войти"}
+ :statuses {:new "Создать статус"}
+ :tables {:action "Действия"
+          :btn-change "Изменить"
+          :btn-delete "Удалить"
+          :creator-name "Автор"
+          :date "Дата создания"
+          :email "Email"
+          :executor-name "Исполнитель"
+          :fname "Полное имя"
+          :id "ID"
+          :name "Наименование"
+          :status-name "Статус"}
+ :tasks {:new "Создать задачу"}
+ :form {:first-name "Имя"
+        :last-name "Фамилия"
+        :email "Email"
+        :name "Наименование"
+        :password-digest "Пароль"
+        :btn-change "Изменить"
+        :btn-create "Создать"
+        :btn-save "Сохранить"}}
