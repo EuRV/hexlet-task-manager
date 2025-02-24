@@ -36,7 +36,7 @@
                         s.name AS status_name,
                         CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
                         CONCAT (e.first_name, ' ', e.last_name) AS executor_name,
-                        t.created_at
+                        TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
                       FROM tasks t
                       JOIN statuses s ON t.status_id = s.id
                       JOIN users c ON t.creator_id = c.id
@@ -52,7 +52,7 @@
                         s.name AS status_name,
                         CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
                         CONCAT (e.first_name, ' ', e.last_name) AS executor_name,
-                        t.created_at
+                        TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
                       FROM tasks t
                       JOIN statuses s ON t.status_id = s.id
                       JOIN users c ON t.creator_id = c.id

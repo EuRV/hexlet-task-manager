@@ -1,8 +1,7 @@
 (ns server.models.users
   (:require [clojure.spec.alpha :as s]
 
-            [server.db.sql.queries :as db]
-            [server.helpers :refer [formatter-users]])
+            [server.db.sql.queries :as db])
   (:gen-class))
 
 (defn at-least [n]
@@ -61,10 +60,17 @@
 
 (defn get-users
   []
-  (let [users (db/query-database ["SELECT * FROM users ORDER BY id ASC"])]
+  (let [users (db/query-database ["SELECT
+                                     id,
+                                     CONCAT(first_name, ' ', last_name) AS fname,
+                                     email,
+                                     password_digest,
+                                     TO_CHAR(created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
+                                   FROM users
+                                   ORDER BY id ASC"])]
     (if (seq (:error users))
       users
-      (mapv formatter-users users))))
+      users)))
 
 (defn get-user
   [id]

@@ -44,7 +44,11 @@
 
 (defn get-statuses
   []
-  (db/query-database ["SELECT id, name, created_at FROM statuses ORDER BY id ASC"]))
+  (db/query-database ["SELECT
+                         id,
+                         name,
+                         TO_CHAR(created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
+                       FROM statuses ORDER BY id ASC"]))
 
 (defn get-status
   [id]
