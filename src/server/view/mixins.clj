@@ -1,5 +1,7 @@
 (ns server.view.mixins
-  (:require [hiccup.form :as form])
+  (:require
+   [hiccup.form :as form]
+   [hiccup.element :refer [link-to]])
   (:gen-class))
 
 (defn table-action [entity id i18n]
@@ -20,6 +22,14 @@
         :let [new-item (reduce #(conj % (vector :td %2)) [:tr] (vals item))]]
     (into [] (concat new-item [(table-action entity id i18n)]))))
 
+(defn table-tasks-body [entity contents i18n]
+  (for [{:keys [id] :as item} contents
+        :let [new-item (reduce-kv #(conj % (if (= %2 :task-name)
+                                             (vector :td (link-to (format "/tasks/%s" id) %3))
+                                             (vector :td %3)))
+                                  [:tr] item)]]
+    (into [] (concat new-item [(table-action entity id i18n)]))))
+
 (defn table-render
   [data i18n contents]
   (let [entity (-> data keys first name)
@@ -29,4 +39,28 @@
       [:thead
        (table-head headings i18n)]
       [:tbody
-       (table-body entity contents i18n)]]]))
+       (if (contains? data :tasks)
+         (table-tasks-body entity contents i18n)
+         (table-body entity contents i18n))]]]))
+
+(comment
+  (table-render
+   {:tasks [:id :name :status-name :creator-name :executor-name :date :action]}
+   {:action "Действия"
+    :btn-change "Изменить"
+    :btn-delete "Удалить"
+    :creator-name "Автор"
+    :date "Дата создания"
+    :email "Email"
+    :executor-name "Исполнитель"
+    :fname "Полное имя"
+    :id "ID"
+    :name "Наименование"
+    :status-name "Статус"}
+   [{:id 1,
+     :task-name "go",
+     :status-name "Started",
+     :creator-name "Artem Ivanov",
+     :executor-name "Pavel Socolov",
+     :created-at #inst "2025-02-19T08:35:48.872876000-00:00"}])
+  :rcf)
