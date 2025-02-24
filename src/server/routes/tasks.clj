@@ -4,7 +4,8 @@
    [ring.util.response :as resp]
   
    [server.models.tasks :as models]
-   [server.view.tasks :as view])
+   [server.view.tasks :as view]
+   [server.helpers :refer [to-number]])
   (:gen-class))
 
 (defn tasks-handler
@@ -18,5 +19,10 @@
         (view/tasks-page request content)))
     (resp/redirect "/")))
 
+(defn task-view-handler
+  [request]
+  (view/task-page request (models/get-task (-> request :params :id to-number))))
+
 (defroutes tasks-routes
-  (GET "/tasks" request (tasks-handler request)))
+  (GET "/tasks" request (tasks-handler request))
+  (GET "/tasks/:id" request (task-view-handler request)))
