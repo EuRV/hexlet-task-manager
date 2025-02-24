@@ -13,7 +13,7 @@
     (with-open [connection (jdbc/get-connection ds)]
       (sql/query
        connection
-       [sql-statement]
+       sql-statement
        {:builder-fn rs/as-unqualified-kebab-maps}))
     (catch Exception _
         {:error
@@ -56,7 +56,3 @@
   [table key value]
   (with-open [connection (jdbc/get-connection ds)]
     (sql/delete! connection table {key value})))
-
-(comment
-  
-  :rcf)
