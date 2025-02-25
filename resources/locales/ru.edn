@@ -9,6 +9,7 @@
           :session-clear "Выход"
           :statuses-new "Создание статуса"
           :statuses-edit "Изменение статуса"
+          :task-new "Создание задачи"
           :users-new "Регистрация"
           :users-edit "Изменение пользователя"}
  :session {:sign-in "Войти"}
@@ -25,11 +26,15 @@
           :name "Наименование"
           :status-name "Статус"}
  :tasks {:new "Создать задачу"}
- :form {:first-name "Имя"
-        :last-name "Фамилия"
+ :form {:btn-change "Изменить"
+        :btn-create "Создать"
+        :btn-save "Сохранить"
+        :description "Описание"
         :email "Email"
+        :executor "Исполнитель"
+        :first-name "Имя"
+        :labels "Метки"
+        :last-name "Фамилия"
         :name "Наименование"
         :password-digest "Пароль"
-        :btn-change "Изменить"
-        :btn-create "Создать"
-        :btn-save "Сохранить"}}
+        :status "Статус"}}
