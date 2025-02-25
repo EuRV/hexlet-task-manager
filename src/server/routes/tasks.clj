@@ -4,6 +4,8 @@
    [ring.util.response :as resp]
   
    [server.models.tasks :as models]
+   [server.models.statuses :refer [get-statuses]]
+   [server.models.users :refer [get-users]]
    [server.view.tasks :as view]
    [server.helpers :refer [to-number]])
   (:gen-class))
@@ -19,10 +21,16 @@
         (view/tasks-page request content)))
     (resp/redirect "/")))
 
+(defn task-new-handler
+  ([request] (task-new-handler request {:errors {} :values {}}))
+  ([request data]
+   (view/task-new request data (get-statuses) (get-users) [])))
+
 (defn task-view-handler
   [request]
   (view/task-page request (models/get-task (-> request :params :id to-number))))
 
 (defroutes tasks-routes
   (GET "/tasks" request (tasks-handler request))
+  (GET "/tasks/new" request (task-new-handler request))
   (GET "/tasks/:id" request (task-view-handler request)))
