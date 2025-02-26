@@ -51,8 +51,11 @@
                        [:input {:type "hidden" :name "_method" :value "DELETE"}]
                        [:input.btn.btn-danger {:type "submit" :value (:btn-delete i18n)}])]]]))))
 
-(def select-statuses
-  [:select {:class "form-control"
+(defn select-statuses
+  [errors]
+  [:select {:class (if (contains? errors :status-id)
+                     "form-control is-invalid"
+                     "form-control")
             :id "data-status-id"
             :name "status-id"}
    [:option]])
@@ -92,13 +95,15 @@
                    (form/text-area {:class "form-control"
                                     :id "data-description"
                                     :rows "3"}
-                                   :description)]
+                                   :description
+                                   (get values :description))]
                   [:div.mb-3
                    (form/label {:for "data-status-id"} :status-id (get-in request [:translations :form :status] "Default"))
-                   (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:name %2))) select-statuses statuses)]
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :status-id))) (:name %2))) (select-statuses errors) statuses)
+                   (when (:status-id errors) [:div.form-control-feedback.invalid-feedback (:status-id errors)])]
                   [:div.mb-3
                    (form/label {:for "data-executor-id"} :executor-id (get-in request [:translations :form :executor] "Default"))
-                   (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:fname %2))) select-users users)]
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :executor-id))) (:fname %2))) select-users users)]
                   [:div.mb-3
                    (form/label {:for "data-labels"} :labels (get-in request [:translations :form :labels] "Default"))
                    (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:fname %2))) select-labels labels)]
