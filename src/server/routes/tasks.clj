@@ -7,7 +7,7 @@
    [server.models.statuses :refer [get-statuses]]
    [server.models.users :refer [get-users]]
    [server.view.tasks :as view]
-   [server.helpers :refer [to-number]])
+   [server.helpers :as h])
   (:gen-class))
 
 (defn tasks-handler
@@ -28,9 +28,35 @@
 
 (defn task-view-handler
   [request]
-  (view/task-page request (models/get-task (-> request :params :id to-number))))
+  (view/task-page request (models/get-task (-> request :params :id h/to-number))))
+
+(defn task-create-handler
+  [{:keys [params session] :as request}]
+  (let [task (->
+              params
+              (assoc :creator-id (:user-id session))
+              h/clean-task-data
+              models/validate-task)]
+    (if (:valid? task)
+      (try
+        (models/create-task (:values task))
+        (->
+         (resp/redirect "/tasks")
+         (assoc :flash {:type "info" :message "Задача успешно создана"}))
+        (catch Exception _
+          (->
+           request
+           (assoc :flash {:type "danger" :message "Ошибка базы данных"})
+           (view/task-new task (get-statuses) (get-users) []))))
+      (do
+        (println task)
+        (->
+         request
+         (assoc :flash {:type "danger" :message "Не удалось создать задачу"})
+         (view/task-new task (get-statuses) (get-users) []))))))
 
 (defroutes tasks-routes
   (GET "/tasks" request (tasks-handler request))
   (GET "/tasks/new" request (task-new-handler request))
-  (GET "/tasks/:id" request (task-view-handler request)))
+  (GET "/tasks/:id" request (task-view-handler request))
+  (POST "/tasks" request (task-create-handler request)))
