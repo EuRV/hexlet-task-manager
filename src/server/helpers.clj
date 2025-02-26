@@ -15,3 +15,13 @@
                (if (key template) (assoc init key value) init))
              {}
              data))
+
+(defn clean-task-data
+  [task]
+  (reduce-kv (fn [acc k v]
+               (cond
+                 (and (k #{:description :executor-id}) (= v "")) acc
+                 (k #{:status-id :creator-id :executor-id}) (assoc acc k (to-number v))
+                 :else (assoc acc k v)))
+             {}
+             task))
