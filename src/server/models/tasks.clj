@@ -26,7 +26,7 @@
 (s/def :tasks/creator-id
   (s/and ::empty ::number))
 
-(s/def :tasks/description string?)
+(s/def :tasks/description ::string)
 
 (s/def :tasks/executor-id ::number)
 
@@ -75,14 +75,14 @@
                       FROM tasks t
                       JOIN statuses s ON t.status_id = s.id
                       JOIN users c ON t.creator_id = c.id
-                      JOIN users e ON t.executor_id = e.id
+                      LEFT JOIN users e ON t.executor_id = e.id
                       ORDER BY id ASC"]))
 
 (defn get-task
   [id]
   (db/query-database ["SELECT
                         t.id,
-                        t.description,
+                        COALESCE(t.description, ' ') AS description,
                         t.name AS task_name,
                         s.name AS status_name,
                         CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
@@ -91,9 +91,5 @@
                       FROM tasks t
                       JOIN statuses s ON t.status_id = s.id
                       JOIN users c ON t.creator_id = c.id
-                      JOIN users e ON t.executor_id = e.id
+                      LEFT JOIN users e ON t.executor_id = e.id
                       WHERE t.id = ?" id]))
-
-(comment
-  (validate-task {:name "go", :description "", :status-id 1, :executor-id 1, :creator-id 1})
-  :rcf)
