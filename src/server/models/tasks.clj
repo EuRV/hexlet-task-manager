@@ -1,7 +1,8 @@
 (ns server.models.tasks
-  (:require [clojure.spec.alpha :as s]
-  
-            [server.db.sql.queries :as db])
+  (:require
+   [clojure.spec.alpha :as s]
+   [clojure.string :as string]
+   [server.db.sql.queries :as db])
   (:gen-class))
 
 (defn at-least [n]
@@ -64,19 +65,31 @@
   (db/insert-data :tasks task))
 
 (defn get-tasks
-  []
-  (db/query-database ["SELECT
-                        t.id,
-                        t.name AS task_name,
-                        s.name AS status_name,
-                        CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
-                        CONCAT (e.first_name, ' ', e.last_name) AS executor_name,
-                        TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
-                      FROM tasks t
-                      JOIN statuses s ON t.status_id = s.id
-                      JOIN users c ON t.creator_id = c.id
-                      LEFT JOIN users e ON t.executor_id = e.id
-                      ORDER BY id ASC"]))
+  [& {:keys [creator-id executor-id status-id]}]
+  (let [base-query "
+      SELECT 
+        t.id,
+        t.name AS task_name,
+        s.name AS status_name,
+        CONCAT (uc.first_name, ' ', uc.last_name) AS creator_name,
+        CONCAT (ue.first_name, ' ', ue.last_name) AS executor_name,
+        TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
+      FROM 
+        tasks t
+        JOIN statuses s ON t.status_id = s.id
+        JOIN users uc ON t.creator_id = uc.id
+        LEFT JOIN users ue ON t.executor_id = ue.id"
+        where-clauses (->> [(when creator-id "t.creator_id = ?")
+                            (when executor-id "t.executor_id = ?")
+                            (when status-id "t.status_id = ?")]
+                           (filter identity)
+                           (string/join " AND "))
+        query (if (empty? where-clauses)
+                (str base-query " ORDER BY id ASC")
+                (str base-query " WHERE " where-clauses " ORDER BY id ASC"))
+        params (->> [creator-id executor-id status-id]
+                    (filter identity))]
+    (db/query-database (into [query] params))))
 
 (defn get-task
   [id]
@@ -93,3 +106,7 @@
                       JOIN users c ON t.creator_id = c.id
                       LEFT JOIN users e ON t.executor_id = e.id
                       WHERE t.id = ?" id]))
+
+(comment
+  (get-tasks {:creator-id 1})
+  :rcf)
