@@ -11,15 +11,56 @@
 (def data {:tasks [:id :name :status-name :creator-name :executor-name :date :action]})
 
 (defn tasks-page
-  [request content]
+  [request content statuses users labels]
   (layout/common
    request
    (let [i18n (get-in request [:translations :tables])]
      (html
       [:h1.display-4.fw-bold.mt-4 (get-in request [:translations :layout :tasks] "Default")]
-      (link-to {:class "btn btn-primary"}
+      (link-to {:class "btn btn-primary mb-5"}
                (format "/%s/new" (-> data keys first name))
                (get-in request [:translations :tasks :new] "Default"))
+      [:div.card.shadow-sm
+       [:div.card-body.p-4
+        (form/form-to [:get "/tasks"]
+                      [:div.row
+                       [:div.col-12.col-md
+                        [:div.input-group.mb-3
+                         (form/label {:class "input-group-text"
+                                      :for "data-status"}
+                                     :status
+                                     (get-in request [:translations :form :status] "Default"))
+                         (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (str (:id %2)) (-> request :params :status))) (:name %2)))
+                                 [:select#data-status.form-select {:name "status"}
+                                  [:option]]
+                                 statuses)]]
+                       [:div.col-12.col-md
+                        [:div.input-group.mb-3
+                         (form/label {:class "input-group-text"
+                                      :for "data-executor"}
+                                     :executor (get-in request [:translations :form :executor] "Default"))
+                         (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (str (:id %2)) (-> request :params :executor))) (:fname %2)))
+                                 [:select#data-executor.form-select {:name "executor"}
+                                  [:option]]
+                                 users)]]
+                       [:div.col-12.col-md
+                        [:div.input-group.mb-3
+                         (form/label {:class "input-group-text"
+                                      :for "data-labels"}
+                                     :labels (get-in request [:translations :form :label] "Default"))
+                         (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (str (:id %2)) (-> request :params :label))) (:name %2)))
+                                 [:select#data-labels.form-select {:name "labels"}
+                                  [:option]]
+                                 labels)]]]
+                      [:div.mb-3.form-check
+                       [:input#data-is-creator-user.form-check-input {:type "checkbox"
+                                                                      :name "is-creator-user"
+                                                                      :checked (-> request :params :is-creator-user)}]
+                       (form/label {:class "form-check-label"
+                                    :for "data-is-creator-user"}
+                                   :my-tasks
+                                   (get-in request [:translations :form :my-tasks] "Default"))]
+                      (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-show] "Default")))]]
       (table-render data i18n content)))))
 
 (defn task-page
