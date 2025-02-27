@@ -11,14 +11,22 @@
   (:gen-class))
 
 (defn tasks-handler
-  [request]
-  (if (seq (:session request))
-    (let [content (models/get-tasks)]
+  [{:keys [session params] :as request}]
+  (if (seq session)
+    (let [{:keys [status executor labels is-creator-user]} params
+          params-query (->>
+                        [(when status [:status-id (h/to-number status)])
+                         (when executor [:executor-id (h/to-number executor)])
+                         (when labels [:labels-id (h/to-number labels)])
+                         (when is-creator-user [:creator-id (-> request :session :user-id)])]
+                        (remove #(nil? (second %)))
+                        (into {}))
+          content (models/get-tasks params-query)]
       (if (seq (:error content))
         (->
          (assoc request :flash {:type "danger" :message (-> content :error :message)})
-         (view/tasks-page (-> content :error :value)))
-        (view/tasks-page request content)))
+         (view/tasks-page (-> content :error :value) (get-statuses) (get-users) []))
+        (view/tasks-page request content (get-statuses) (get-users) [])))
     (resp/redirect "/")))
 
 (defn task-new-handler
