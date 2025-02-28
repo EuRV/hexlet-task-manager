@@ -149,3 +149,40 @@
                    (form/label {:for "data-labels"} :labels (get-in request [:translations :form :labels] "Default"))
                    (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:fname %2))) select-labels labels)]
                   (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-create] "Default"))))))
+
+(defn task-edit
+  [request {:keys [errors values]} statuses users labels]
+  (layout/common
+   request
+   (html
+    [:h1.display-4.fw-bold.mt-4 (get-in request [:translations :layout :task-edit] "Default")]
+    (form/form-to [:post (format "/tasks/%s" (:id values))]
+                  [:div.form-floating.mb-3
+                   [:input#data-name {:name "name"
+                                      :placeholder (get-in request [:translations :form :name] "Default")
+                                      :type "text"
+                                      :value (:name values)
+                                      :class (if (contains? errors :name)
+                                               "form-control is-invalid"
+                                               "form-control")}]
+                   (when (:name errors) [:div.form-control-feedback.invalid-feedback (:name errors)])
+                   (form/label {:for "data-name"} :name (get-in request [:translations :form :name] "Default"))]
+                  [:div.mb-3
+                   (form/label {:for "data-description"} :description (get-in request [:translations :form :description] "Default"))
+                   (form/text-area {:class "form-control"
+                                    :id "data-description"
+                                    :rows "3"}
+                                   :description
+                                   (get values :description))]
+                  [:div.mb-3
+                   (form/label {:for "data-status-id"} :status-id (get-in request [:translations :form :status] "Default"))
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :status-id))) (:name %2))) (select-statuses errors) statuses)
+                   (when (:status-id errors) [:div.form-control-feedback.invalid-feedback (:status-id errors)])]
+                  [:div.mb-3
+                   (form/label {:for "data-executor-id"} :executor-id (get-in request [:translations :form :executor] "Default"))
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :executor-id))) (:fname %2))) select-users users)]
+                  [:div.mb-3
+                   (form/label {:for "data-labels"} :labels (get-in request [:translations :form :labels] "Default"))
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:fname %2))) select-labels labels)]
+                  (form/hidden-field :_method :PATCH)
+                  (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-change] "Default"))))))
