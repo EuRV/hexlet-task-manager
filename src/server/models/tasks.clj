@@ -91,7 +91,7 @@
                     (filter identity))]
     (db/query-database (into [query] params))))
 
-(defn get-task
+(defn get-task-relation
   [id]
   (db/query-database ["SELECT
                         t.id,
@@ -107,6 +107,9 @@
                       LEFT JOIN users e ON t.executor_id = e.id
                       WHERE t.id = ?" id]))
 
-(comment
-  (get-tasks {:creator-id 1})
-  :rcf)
+(defn get-task
+  [id]
+  (db/query-by-id
+   :tasks
+   id
+   {:columns [:id :name :description :status-id :executor-id]}))
