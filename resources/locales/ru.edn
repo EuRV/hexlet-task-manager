@@ -10,6 +10,7 @@
           :statuses-new "Создание статуса"
           :statuses-edit "Изменение статуса"
           :task-new "Создание задачи"
+          :task-edit "Изменение задачи"
           :users-new "Регистрация"
           :users-edit "Изменение пользователя"}
  :session {:sign-in "Войти"}
