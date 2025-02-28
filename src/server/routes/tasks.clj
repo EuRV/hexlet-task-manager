@@ -36,7 +36,12 @@
 
 (defn task-view-handler
   [request]
-  (view/task-page request (models/get-task (-> request :params :id h/to-number))))
+  (view/task-page request (models/get-task-relation (-> request :params :id h/to-number))))
+
+(defn task-edit-handler
+  [request]
+  (let [task-id (-> request :params :id h/to-number)]
+   (view/task-edit request {:errors {} :values (models/get-task task-id)} (get-statuses) (get-users) [])))
 
 (defn task-create-handler
   [{:keys [params session] :as request}]
@@ -67,4 +72,5 @@
   (GET "/tasks" request (tasks-handler request))
   (GET "/tasks/new" request (task-new-handler request))
   (GET "/tasks/:id" request (task-view-handler request))
-  (POST "/tasks" request (task-create-handler request)))
+  (POST "/tasks" request (task-create-handler request))
+  (GET "/tasks/:id/edit" request (task-edit-handler request)))
