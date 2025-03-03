@@ -61,16 +61,39 @@
            request
            (assoc :flash {:type "danger" :message "Ошибка базы данных"})
            (view/task-new task (get-statuses) (get-users) []))))
-      (do
-        (println task)
+      (->
+       request
+       (assoc :flash {:type "danger" :message "Не удалось создать задачу"})
+       (view/task-new task (get-statuses) (get-users) [])))))
+
+(defn task-update-handler
+  [{:keys [params session] :as request}]
+  (let [task (->
+              params
+              (assoc :creator-id (:user-id session))
+              h/clean-task-data
+              models/validate-task)]
+    (println task)
+    (if (:valid? task)
+      (try
+        (models/update-task (-> params :id h/to-number) (:values task))
         (->
-         request
-         (assoc :flash {:type "danger" :message "Не удалось создать задачу"})
-         (view/task-new task (get-statuses) (get-users) []))))))
+         (resp/redirect "/tasks")
+         (assoc :flash {:type "info" :message "Задача успешно изменена"}))
+        (catch Exception _
+          (->
+           request
+           (assoc :flash {:type "danger" :message "Ошибка базы данных"})
+           (view/task-edit task (get-statuses) (get-users) []))))
+      (->
+       request
+       (assoc :flash {:type "danger" :message "Не удалось изменить задачу"})
+       (view/task-edit task (get-statuses) (get-users) [])))))
 
 (defroutes tasks-routes
   (GET "/tasks" request (tasks-handler request))
   (GET "/tasks/new" request (task-new-handler request))
   (GET "/tasks/:id" request (task-view-handler request))
+  (GET "/tasks/:id/edit" request (task-edit-handler request))
   (POST "/tasks" request (task-create-handler request))
-  (GET "/tasks/:id/edit" request (task-edit-handler request)))
+  (PATCH "/tasks/:id" request (task-update-handler request)))
