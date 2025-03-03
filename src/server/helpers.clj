@@ -21,7 +21,8 @@
   (reduce-kv (fn [acc k v]
                (cond
                  (and (k #{:description :executor-id}) (= v "")) acc
+                 (k #{:name :description}) (assoc acc k v)
                  (k #{:status-id :creator-id :executor-id}) (assoc acc k (to-number v))
-                 :else (assoc acc k v)))
+                 :else acc))
              {}
              task))
