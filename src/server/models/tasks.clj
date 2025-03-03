@@ -113,3 +113,7 @@
    :tasks
    id
    {:columns [:id :name :description :status-id :executor-id]}))
+
+(defn update-task
+  [id values]
+  (db/update-data :tasks values {:id id}))
