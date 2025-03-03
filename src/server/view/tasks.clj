@@ -5,7 +5,8 @@
    [hiccup.element :refer [link-to]]
       
    [server.view.layout :as layout]
-   [server.view.mixins :refer [table-render]])
+   [server.view.mixins :refer [table-render]]
+   [server.helpers :as h])
   (:gen-class))
 
 (def data {:tasks [:id :name :status-name :creator-name :executor-name :date :action]})
@@ -87,8 +88,8 @@
          [:span.text-muted.me-2 (get-in request [:translations :tables :date] "Default")]
          [:span (get task :created-at "Default")]]
         [:div.d-flex.flex-wrap
-         [:a.btn.btn-primary.me-1 {:href (format "tasks/%s/edit" (:id task))} (:btn-change i18n)]
-         (form/form-to [:post (format "tasks/%s" (:id task))]
+         [:a.btn.btn-primary.me-1 {:href (format "/tasks/%s/edit" (:id task))} (:btn-change i18n)]
+         (form/form-to [:post (format "/tasks/%s" (:id task))]
                        [:input {:type "hidden" :name "_method" :value "DELETE"}]
                        [:input.btn.btn-danger {:type "submit" :value (:btn-delete i18n)}])]]]))))
 
@@ -156,7 +157,7 @@
    request
    (html
     [:h1.display-4.fw-bold.mt-4 (get-in request [:translations :layout :task-edit] "Default")]
-    (form/form-to [:post (format "/tasks/%s" (:id values))]
+    (form/form-to [:post (format "/tasks/%s" (-> request :params :id h/to-number))]
                   [:div.form-floating.mb-3
                    [:input#data-name {:name "name"
                                       :placeholder (get-in request [:translations :form :name] "Default")
