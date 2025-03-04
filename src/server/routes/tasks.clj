@@ -90,10 +90,30 @@
        (assoc :flash {:type "danger" :message "Не удалось изменить задачу"})
        (view/task-edit task (get-statuses) (get-users) [])))))
 
+(defn task-delete-handler
+  [request]
+  (let [task-id (-> request :params :id h/to-number)
+        session-user-id (-> request :session :user-id h/to-number)
+        creator-id (-> task-id models/get-task :creator-id)]
+    (if (= session-user-id creator-id)
+      (try
+        (models/delete-task task-id)
+        (->
+         (resp/redirect "/tasks")
+         (assoc :flash {:type "info" :message "Задача успешно удалена"}))
+        (catch Exception _
+         (->
+          (resp/redirect "/tasks")
+          (assoc :flash {:type "danger" :message "Ошибка базы данных"}))))
+      (->
+       (resp/redirect "/tasks")
+       (assoc :flash {:type "danger" :message "Задачу может удалить только её автор"})))))
+
 (defroutes tasks-routes
   (GET "/tasks" request (tasks-handler request))
   (GET "/tasks/new" request (task-new-handler request))
   (GET "/tasks/:id" request (task-view-handler request))
   (GET "/tasks/:id/edit" request (task-edit-handler request))
   (POST "/tasks" request (task-create-handler request))
-  (PATCH "/tasks/:id" request (task-update-handler request)))
+  (PATCH "/tasks/:id" request (task-update-handler request))
+  (DELETE "/tasks/:id" request (task-delete-handler request)))
