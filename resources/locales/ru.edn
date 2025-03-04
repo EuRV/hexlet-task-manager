@@ -1,20 +1,21 @@
 {:home {:welcome "Привет от Хекслета!"}
- :layout {:title "Hexlet Task Manager"
+ :layout {:labels "Метки"
           :name "Менеджер задач"
-          :users "Пользователи"
-          :statuses "Статусы"
-          :tasks "Задачи"
-          :labels "Метки"
-          :session-new "Вход"
           :session-clear "Выход"
-          :statuses-new "Создание статуса"
+          :session-new "Вход"
+          :statuses "Статусы"
           :statuses-edit "Изменение статуса"
-          :task-new "Создание задачи"
+          :statuses-new "Создание статуса"
+          :tasks "Задачи" 
           :task-edit "Изменение задачи"
-          :users-new "Регистрация"
-          :users-edit "Изменение пользователя"}
+          :task-new "Создание задачи"
+          :title "Hexlet Task Manager"
+          :users "Пользователи"
+          :users-edit "Изменение пользователя"
+          :users-new "Регистрация"}
  :session {:sign-in "Войти"}
  :statuses {:new "Создать статус"}
+ :labels {:new "Создать метку"}
  :tables {:action "Действия"
           :btn-change "Изменить"
           :btn-delete "Удалить"
