@@ -112,8 +112,12 @@
   (db/query-by-id
    :tasks
    id
-   {:columns [:id :name :description :status-id :executor-id]}))
+   {:columns [:id :name :description :status-id :creator-id :executor-id]}))
 
 (defn update-task
   [id values]
   (db/update-data :tasks values {:id id}))
+
+(defn delete-task
+  [id]
+  (db/delete-by-key :tasks :id id))
