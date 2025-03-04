@@ -10,7 +10,8 @@
             [server.routes.users :refer [users-routes]]
             [server.routes.session :refer [session-routes]]
             [server.routes.statuses :refer [statuses-routes]]
-            [server.routes.tasks :refer [tasks-routes]])
+            [server.routes.tasks :refer [tasks-routes]]
+            [server.routes.labels :refer [labels-routes]])
   (:gen-class))
 
 (defroutes app-routes
@@ -18,7 +19,8 @@
           users-routes
           session-routes
           statuses-routes
-          tasks-routes))
+          tasks-routes
+          labels-routes))
 
 (def app
   (-> #'app-routes
