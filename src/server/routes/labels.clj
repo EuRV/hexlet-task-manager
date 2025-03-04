@@ -1,6 +1,6 @@
 (ns server.routes.labels
   (:require
-   [compojure.core :refer [defroutes GET]]
+   [compojure.core :refer [defroutes GET POST]]
    [ring.util.response :as resp]
   
    [server.models.labels :as models]
@@ -19,5 +19,13 @@
         (view/labels-page request content)))
     (resp/redirect "/")))
 
+(defn labels-new-handler
+  ([request] (labels-new-handler request {:errors {} :values {}}))
+  ([request data]
+   (if (seq (:session request))
+     (view/labels-new-page request data)
+     (resp/redirect "/"))))
+
 (defroutes labels-routes
-  (GET "/labels" request (labels-handler request)))
+  (GET "/labels" request (labels-handler request))
+  (GET "/labels/new" request (labels-new-handler request)))
