@@ -51,3 +51,7 @@
                          TO_CHAR(created_at, 'FMMM/FMDD/YYYY, FMHH12:MI:SS AM') AS created_at
                        FROM labels
                        ORDER BY id ASC"]))
+
+(defn get-label
+  [id]
+  (db/query-by-id :labels id))
