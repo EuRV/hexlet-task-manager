@@ -39,6 +39,10 @@
      :values (->> (s/explain-data :labels/entity labels)
                   :clojure.spec.alpha/value)}))
 
+(defn create-label
+  [label]
+  (db/insert-data :labels label))
+
 (defn get-labels
   []
   (db/query-database ["SELECT
