@@ -19,13 +19,33 @@
         (view/labels-page request content)))
     (resp/redirect "/")))
 
-(defn labels-new-handler
-  ([request] (labels-new-handler request {:errors {} :values {}}))
+(defn label-new-handler
+  ([request] (label-new-handler request {:errors {} :values {}}))
   ([request data]
    (if (seq (:session request))
      (view/labels-new-page request data)
      (resp/redirect "/"))))
 
+(defn label-create-handler
+  [request]
+  (let [data (-> request :params models/validate-labels)]
+    (if (:valid? data)
+      (try
+        (models/create-labels (:values data))
+        (->
+         (resp/redirect "/labels")
+         (assoc :flash {:type "info" :message "Метка успешно создана"}))
+        (catch Exception _
+          (->
+           request
+           (assoc :flash {:type "danger" :message "Не удалось создать метку"})
+           (view/labels-new-page (assoc-in data [:errors :name] "Такая метка уже существует")))))
+      (->
+       request
+       (assoc :flash {:type "danger" :message "Не удалось создать метку"})
+       (view/labels-new-page data)))))
+
 (defroutes labels-routes
   (GET "/labels" request (labels-handler request))
-  (GET "/labels/new" request (labels-new-handler request)))
+  (GET "/labels/new" request (label-new-handler request))
+  (POST "/labels" request (label-create-handler request)))
