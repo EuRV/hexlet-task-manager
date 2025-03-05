@@ -26,12 +26,17 @@
      (view/labels-new-page request data)
      (resp/redirect "/"))))
 
+(defn label-edit-handler
+  [request]
+  (let [label-id (-> request :params :id to-number)]
+    (view/labels-edit-page request {:errors {} :values (models/get-label label-id)})))
+
 (defn label-create-handler
   [request]
-  (let [data (-> request :params models/validate-labels)]
+  (let [data (-> request :params models/validate-label)]
     (if (:valid? data)
       (try
-        (models/create-labels (:values data))
+        (models/create-label (:values data))
         (->
          (resp/redirect "/labels")
          (assoc :flash {:type "info" :message "Метка успешно создана"}))
@@ -48,4 +53,5 @@
 (defroutes labels-routes
   (GET "/labels" request (labels-handler request))
   (GET "/labels/new" request (label-new-handler request))
+  (GET "/labels/:id/edit" request (label-edit-handler request))
   (POST "/labels" request (label-create-handler request)))
