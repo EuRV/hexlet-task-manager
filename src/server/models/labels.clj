@@ -55,3 +55,7 @@
 (defn get-label
   [id]
   (db/query-by-id :labels id))
+
+(defn update-label
+  [id values]
+  (db/update-data :labels values {:id id}))
