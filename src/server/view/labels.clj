@@ -38,3 +38,21 @@
                    (when (:name errors) [:div.form-control-feedback.invalid-feedback (:name errors)])
                    (form/label {:for "data-name"} :name (get-in request [:translations :form :name] "Default"))]
                   (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-create] "Default"))))))
+
+(defn labels-edit-page
+  [request {:keys [errors values]}]
+  (layout/common
+   request
+   (html
+    [:h1.display-4.fw-bold.mt-4 (get-in request [:translations :layout :labels-edit] "Default")]
+    (form/form-to [:post (format "/labels/%s" (:id values))]
+                  [:div.form-floating.mb-3
+                   [:input#data-name.form-control {:name "name"
+                                                   :placeholder (get-in request [:translations :form :name] "Default")
+                                                   :type "text"
+                                                   :value (:name values)
+                                                   :class (when (contains? errors :name) "is-invalid")}]
+                   (when (:name errors) [:div.form-control-feedback.invalid-feedback (:name errors)])
+                   (form/label {:for "data-name"} :name (get-in request [:translations :form :name] "Default"))]
+                  (form/hidden-field :_method :PATCH)
+                  (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-change] "Default"))))))
