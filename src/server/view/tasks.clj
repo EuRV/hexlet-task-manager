@@ -112,8 +112,7 @@
   [:select {:class "form-control"
             :id "data-labels"
             :name "labels"
-            :multiple "multiple"}
-   [:option]])
+            :multiple "multiple"}])
 
 (defn task-new
   [request {:keys [errors values]} statuses users labels]
@@ -148,7 +147,7 @@
                    (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :executor-id))) (:fname %2))) select-users users)]
                   [:div.mb-3
                    (form/label {:for "data-labels"} :labels (get-in request [:translations :form :labels] "Default"))
-                   (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:fname %2))) select-labels labels)]
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:name %2))) select-labels labels)]
                   (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-create] "Default"))))))
 
 (defn task-edit
@@ -184,6 +183,6 @@
                    (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :executor-id))) (:fname %2))) select-users users)]
                   [:div.mb-3
                    (form/label {:for "data-labels"} :labels (get-in request [:translations :form :labels] "Default"))
-                   (reduce #(conj % (vector :option (assoc {} :value (:id %2)) (:fname %2))) select-labels labels)]
+                   (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (:id %2) (get values :label-id))) (:name %2))) select-labels labels)]
                   (form/hidden-field :_method :PATCH)
                   (form/submit-button {:class "btn btn-primary"} (get-in request [:translations :form :btn-change] "Default"))))))
