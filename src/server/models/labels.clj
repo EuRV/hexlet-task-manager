@@ -59,3 +59,7 @@
 (defn update-label
   [id values]
   (db/update-data :labels values {:id id}))
+
+(defn delete-label
+  [id]
+  (db/delete-by-key :labels :id id))
