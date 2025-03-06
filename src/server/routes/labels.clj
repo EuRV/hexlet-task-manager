@@ -1,6 +1,6 @@
 (ns server.routes.labels
   (:require
-   [compojure.core :refer [defroutes GET POST PATCH]]
+   [compojure.core :refer [defroutes GET POST PATCH DELETE]]
    [ring.util.response :as resp]
   
    [server.models.labels :as models]
@@ -67,9 +67,22 @@
        (assoc :flash {:type "danger" :message "Не удалось изменить метку"})
        (view/labels-edit-page data)))))
 
+(defn label-delete-handler
+  [request]
+  (let [label-id (-> request :params :id to-number)]
+    (try (models/delete-label label-id)
+         (->
+          (resp/redirect "/labels")
+          (assoc :flash {:type "info" :message "Метка успешно удалена"}))
+         (catch Exception _
+           (->
+            (resp/redirect "/labels")
+            (assoc :flash {:type "danger" :message "Не удалось удалить метку"}))))))
+
 (defroutes labels-routes
   (GET "/labels" request (labels-handler request))
   (GET "/labels/new" request (label-new-handler request))
   (GET "/labels/:id/edit" request (label-edit-handler request))
   (POST "/labels" request (label-create-handler request))
-  (PATCH "/labels/:id" request (label-update-handler request)))
+  (PATCH "/labels/:id" request (label-update-handler request))
+  (DELETE "/labels/:id" request (label-delete-handler request)))
