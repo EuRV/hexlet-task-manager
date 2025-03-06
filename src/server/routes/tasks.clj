@@ -6,6 +6,7 @@
    [server.models.tasks :as models]
    [server.models.statuses :refer [get-statuses]]
    [server.models.users :refer [get-users]]
+   [server.models.labels :refer [get-labels]]
    [server.view.tasks :as view]
    [server.helpers :as h])
   (:gen-class))
@@ -25,14 +26,14 @@
       (if (seq (:error content))
         (->
          (assoc request :flash {:type "danger" :message (-> content :error :message)})
-         (view/tasks-page (-> content :error :value) (get-statuses) (get-users) []))
-        (view/tasks-page request content (get-statuses) (get-users) [])))
+         (view/tasks-page (-> content :error :value) (get-statuses) (get-users) (get-labels)))
+        (view/tasks-page request content (get-statuses) (get-users) (get-labels))))
     (resp/redirect "/")))
 
 (defn task-new-handler
   ([request] (task-new-handler request {:errors {} :values {}}))
   ([request data]
-   (view/task-new request data (get-statuses) (get-users) [])))
+   (view/task-new request data (get-statuses) (get-users) (get-labels))))
 
 (defn task-view-handler
   [request]
@@ -41,7 +42,7 @@
 (defn task-edit-handler
   [request]
   (let [task-id (-> request :params :id h/to-number)]
-   (view/task-edit request {:errors {} :values (models/get-task task-id)} (get-statuses) (get-users) [])))
+   (view/task-edit request {:errors {} :values (models/get-task task-id)} (get-statuses) (get-users) (get-labels))))
 
 (defn task-create-handler
   [{:keys [params session] :as request}]
