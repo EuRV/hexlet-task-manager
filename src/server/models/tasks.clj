@@ -94,18 +94,22 @@
 (defn get-task-relation
   [id]
   (db/query-database ["SELECT
-                        t.id,
-                        COALESCE(t.description, ' ') AS description,
-                        t.name AS task_name,
-                        s.name AS status_name,
-                        CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
-                        CONCAT (e.first_name, ' ', e.last_name) AS executor_name,
-                        TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
-                      FROM tasks t
-                      JOIN statuses s ON t.status_id = s.id
-                      JOIN users c ON t.creator_id = c.id
-                      LEFT JOIN users e ON t.executor_id = e.id
-                      WHERE t.id = ?" id]))
+                            t.id,
+                            COALESCE(t.description, ' ') AS description,
+                            t.name AS task_name,
+                            s.name AS status_name,
+                            CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
+                            CONCAT (e.first_name, ' ', e.last_name) AS executor_name,
+                            ARRAY_AGG(l.name) AS labels,
+                            TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
+                          FROM tasks t
+                          JOIN statuses s ON t.status_id = s.id
+                          JOIN users c ON t.creator_id = c.id
+                          LEFT JOIN users e ON t.executor_id = e.id
+                          LEFT JOIN labels_tasks lt ON t.id = lt.task_id
+                          LEFT JOIN labels l ON lt.label_id = l.id
+                          WHERE t.id = ?
+                          GROUP BY t.id, t.name, s.name, creator_name, executor_name" id]))
 
 (defn get-task
   [id]
@@ -121,3 +125,48 @@
 (defn delete-task
   [id]
   (db/delete-by-key :tasks :id id))
+
+(comment
+  (def req {:id 1,
+            :description "go to the store",
+            :task_name "go",
+            :status_name "Started",
+            :creator_name "Artem Ivanov",
+            :executor_name "Pavel Socolov",
+            :labels [org.postgresql.jdbc.PgArray 0x42d15f86 "{invalid,bug}"],
+            :created_at "2/19/2025, 02:35:48 PM"})
+  (vec (.getArray (:labels req)))
+
+  (defn pgarray-to-vector [pgarray]
+    (if (and (some? pgarray) (instance? org.postgresql.jdbc.PgArray pgarray))
+      (vec (.getArray pgarray))
+      pgarray))
+  
+  (defn get-relation
+    [id]
+    (->> (db/query-database ["SELECT
+                            t.id,
+                            COALESCE(t.description, ' ') AS description,
+                            t.name AS task_name,
+                            s.name AS status_name,
+                            CONCAT (c.first_name, ' ', c.last_name) AS creator_name,
+                            CONCAT (e.first_name, ' ', e.last_name) AS executor_name,
+                            array_remove(array_agg(l.name), NULL) AS labels,
+                            TO_CHAR(t.created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
+                          FROM tasks t
+                          JOIN statuses s ON t.status_id = s.id
+                          JOIN users c ON t.creator_id = c.id
+                          LEFT JOIN users e ON t.executor_id = e.id
+                          LEFT JOIN labels_tasks lt ON t.id = lt.task_id
+                          LEFT JOIN labels l ON lt.label_id = l.id
+                          WHERE t.id = ?
+                          GROUP BY t.id, t.name, s.name, creator_name, executor_name" id])
+         (mapv #(update % :labels pgarray-to-vector))))
+  
+  
+  (->
+   (get-relation 2)
+   first
+   :labels
+   not-empty)
+  :rcf)
