@@ -1,5 +1,7 @@
 {:home {:welcome "Привет от Хекслета!"}
  :layout {:labels "Метки"
+          :labels-edit "Изменение метки"
+          :labels-new "Создание метки"
           :name "Менеджер задач"
           :session-clear "Выход"
           :session-new "Вход"
