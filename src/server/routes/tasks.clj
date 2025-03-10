@@ -14,11 +14,11 @@
 (defn tasks-handler
   [{:keys [session params] :as request}]
   (if (seq session)
-    (let [{:keys [status executor labels is-creator-user]} params
+    (let [{:keys [status executor label is-creator-user]} params
           params-query (->>
                         [(when status [:status-id (h/to-number status)])
                          (when executor [:executor-id (h/to-number executor)])
-                         (when labels [:labels-id (h/to-number labels)])
+                         (when label [:label-id (h/to-number label)])
                          (when is-creator-user [:creator-id (-> request :session :user-id)])]
                         (remove #(nil? (second %)))
                         (into {}))

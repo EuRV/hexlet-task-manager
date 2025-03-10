@@ -47,10 +47,10 @@
                        [:div.col-12.col-md
                         [:div.input-group.mb-3
                          (form/label {:class "input-group-text"
-                                      :for "data-labels"}
-                                     :labels (get-in request [:translations :form :label] "Default"))
+                                      :for "data-label"}
+                                     :label (get-in request [:translations :form :label] "Default"))
                          (reduce #(conj % (vector :option (assoc {} :value (:id %2) :selected (= (str (:id %2)) (-> request :params :label))) (:name %2)))
-                                 [:select#data-labels.form-select {:name "labels"}
+                                 [:select#data-label.form-select {:name "label"}
                                   [:option]]
                                  labels)]]]
                       [:div.mb-3.form-check
