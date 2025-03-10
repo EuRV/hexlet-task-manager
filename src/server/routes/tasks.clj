@@ -74,7 +74,6 @@
               (assoc :creator-id (:user-id session))
               h/clean-task-data
               models/validate-task)]
-    (println task)
     (if (:valid? task)
       (try
         (models/update-task (-> params :id h/to-number) (:values task))
