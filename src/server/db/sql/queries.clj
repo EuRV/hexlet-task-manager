@@ -7,6 +7,17 @@
    [server.db.core :refer [ds]])
   (:gen-class))
 
+(defn query-tasks
+  [sql-statement]
+  (try
+     (with-open [connection (jdbc/get-connection ds)]
+       (jdbc/execute!
+        connection
+        sql-statement
+        {:builder-fn rs/as-unqualified-kebab-maps}))
+     (catch Exception e
+       e)))
+
 (defn query-database
   [sql-statement]
   (try
@@ -15,9 +26,9 @@
        connection
        sql-statement
        {:builder-fn rs/as-unqualified-kebab-maps}))
-    (catch Exception _
+    (catch Exception e
         {:error
-         {:message "Ошибка базы данных"
+         {:message (ex-message e)
           :value []}})))
 
 (defn query-by-key
