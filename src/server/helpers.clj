@@ -23,6 +23,7 @@
                  (and (k #{:description :executor-id}) (= v "")) acc
                  (k #{:name :description}) (assoc acc k v)
                  (k #{:status-id :creator-id :executor-id}) (assoc acc k (to-number v))
+                 (k #{:labels}) (assoc acc k (mapv to-number (flatten [v])))
                  :else acc))
              {}
              task))
