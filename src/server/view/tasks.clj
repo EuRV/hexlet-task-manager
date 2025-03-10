@@ -76,8 +76,13 @@
        [:div.col-12.col-md-8.order-2.order-md-1
         [:div.lead.fw-normal.mb-4 (get task :description "Default")]]
        [:div.col-12.col-md-4.border-start.px-3.order-1.order-md-2.mb-3.mb-md-0
-        [:div.mb-2
-         [:span.me-1.badge.bg-danger.text-white (get task :status-name "Default")]]
+        (if (seq (:labels task))
+          (reduce #(conj % [:span.me-1.badge.bg-info.text-white %2])
+                  [:div.mb-2
+                   [:span.me-1.badge.bg-danger.text-white (get task :status-name "Default")]]
+                  (:labels task))
+          [:div.mb-2
+           [:span.me-1.badge.bg-danger.text-white (get task :status-name "Default")]])
         [:div.d-flex.flex-wrap.mb-3
          [:span.text-muted.me-2 (get-in request [:translations :tables :creator-name] "Default")]
          [:span (get task :creator-name "Default")]]
