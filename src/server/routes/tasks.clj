@@ -8,7 +8,8 @@
    [server.models.users :refer [get-users]]
    [server.models.labels :refer [get-labels]]
    [server.view.tasks :as view]
-   [server.helpers :as h])
+   [server.helpers :as h]
+   [server.db.sql.queries :as db])
   (:gen-class))
 
 (defn tasks-handler
@@ -32,8 +33,10 @@
 
 (defn task-new-handler
   ([request] (task-new-handler request {:errors {} :values {}}))
-  ([request data]
-   (view/task-new request data (get-statuses) (get-users) (get-labels))))
+  ([{:keys [session] :as request} data]
+   (if (seq session)
+     (view/task-new request data (get-statuses) (get-users) (get-labels))
+     (resp/redirect "/"))))
 
 (defn task-view-handler
   [request]
@@ -53,7 +56,7 @@
               models/validate-task)]
     (if (:valid? task)
       (try
-        (models/create-task (:values task))
+        (db/create-task-with-labels (dissoc (:values task) :labels) (:labels (:values task)))
         (->
          (resp/redirect "/tasks")
          (assoc :flash {:type "info" :message "Задача успешно создана"}))
@@ -61,11 +64,12 @@
           (->
            request
            (assoc :flash {:type "danger" :message "Ошибка базы данных"})
-           (view/task-new task (get-statuses) (get-users) []))))
+           (view/task-new task (get-statuses) (get-users) (get-labels)))))
       (->
        request
        (assoc :flash {:type "danger" :message "Не удалось создать задачу"})
-       (view/task-new task (get-statuses) (get-users) [])))))
+       (view/task-new task (get-statuses) (get-users) (get-labels))))
+    ))
 
 (defn task-update-handler
   [{:keys [params session] :as request}]
@@ -84,11 +88,11 @@
           (->
            request
            (assoc :flash {:type "danger" :message "Ошибка базы данных"})
-           (view/task-edit task (get-statuses) (get-users) []))))
+           (view/task-edit task (get-statuses) (get-users) (get-labels)))))
       (->
        request
        (assoc :flash {:type "danger" :message "Не удалось изменить задачу"})
-       (view/task-edit task (get-statuses) (get-users) [])))))
+       (view/task-edit task (get-statuses) (get-users) (get-labels))))))
 
 (defn task-delete-handler
   [request]
