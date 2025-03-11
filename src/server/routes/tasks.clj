@@ -80,7 +80,7 @@
               models/validate-task)]
     (if (:valid? task)
       (try
-        (models/update-task (-> params :id h/to-number) (:values task))
+        (db/update-task-with-labels (-> params :id h/to-number) (dissoc (:values task) :labels) (:labels (:values task)))
         (->
          (resp/redirect "/tasks")
          (assoc :flash {:type "info" :message "Задача успешно изменена"}))
