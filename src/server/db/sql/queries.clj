@@ -56,3 +56,12 @@
   [table key value]
   (with-open [connection (jdbc/get-connection ds)]
     (sql/delete! connection table {key value})))
+
+(defn create-task-with-labels [task-data label-ids]
+  (jdbc/with-transaction [tx ds]
+    (try
+      (let [{:keys [id]} (sql/insert! tx :tasks task-data jdbc/unqualified-snake-kebab-opts)]
+        (doseq [label-id label-ids]
+          (sql/insert! tx :labels_tasks {:label_id label-id :task_id id} jdbc/unqualified-snake-kebab-opts)))
+      (catch Exception e
+        (throw (ex-info "Ошибка при создании задачи" {:cause (.getMessage e)}))))))
