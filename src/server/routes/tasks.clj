@@ -101,7 +101,7 @@
         creator-id (-> task-id models/get-task :creator-id)]
     (if (= session-user-id creator-id)
       (try
-        (models/delete-task task-id)
+        (db/delete-task-with-labels task-id)
         (->
          (resp/redirect "/tasks")
          (assoc :flash {:type "info" :message "Задача успешно удалена"}))
