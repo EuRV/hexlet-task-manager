@@ -75,3 +75,11 @@
         (sql/insert! tx :labels_tasks {:task_id task-id :label_id label-id} jdbc/unqualified-snake-kebab-opts))
       (catch Exception e
         (throw (ex-info "Ошибка при обновлении задачи" {:cause (.getMessage e)}))))))
+
+(defn delete-task-with-labels [task-id]
+  (jdbc/with-transaction [tx ds]
+    (try
+      (sql/delete! tx :labels_tasks ["task_id = ?" task-id])
+      (sql/delete! tx :tasks ["id = ?" task-id])
+      (catch Exception e
+        (throw (ex-info "Ошибка при удалении задачи" {:cause (.getMessage e)}))))))
