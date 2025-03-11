@@ -65,3 +65,13 @@
           (sql/insert! tx :labels_tasks {:label_id label-id :task_id id} jdbc/unqualified-snake-kebab-opts)))
       (catch Exception e
         (throw (ex-info "Ошибка при создании задачи" {:cause (.getMessage e)}))))))
+
+(defn update-task-with-labels [task-id updated-task-data label-ids]
+  (jdbc/with-transaction [tx ds]
+    (try
+      (sql/update! tx :tasks updated-task-data ["id = ?" task-id] jdbc/unqualified-snake-kebab-opts)
+      (sql/delete! tx :labels_tasks ["task_id = ?" task-id] jdbc/unqualified-snake-kebab-opts)
+      (doseq [label-id label-ids]
+        (sql/insert! tx :labels_tasks {:task_id task-id :label_id label-id} jdbc/unqualified-snake-kebab-opts))
+      (catch Exception e
+        (throw (ex-info "Ошибка при обновлении задачи" {:cause (.getMessage e)}))))))
