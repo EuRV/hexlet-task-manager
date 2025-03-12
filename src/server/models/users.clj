@@ -64,7 +64,6 @@
                                      id,
                                      CONCAT(first_name, ' ', last_name) AS fname,
                                      email,
-                                     password_digest,
                                      TO_CHAR(created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
                                    FROM users
                                    ORDER BY id ASC"])]
@@ -79,11 +78,11 @@
    id
    {:columns [:id :first-name :last-name :email :password-digest]}))
 
-(defn get-user-by-email-password
-  [email password]
+(defn get-user-by-email
+  [email]
   (db/query-by-key
    :users
-   {:email email :password-digest password}
+   {:email email}
    {:columns [:id :email :password-digest]}))
 
 (defn add-user
