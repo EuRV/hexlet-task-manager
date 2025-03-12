@@ -90,7 +90,7 @@
   (db/insert-data :users user))
 
 (defn update-user
-  [id values]
+  [values id]
   (db/update-data :users values {:id id}))
 
 (defn delete-user
