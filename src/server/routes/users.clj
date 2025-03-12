@@ -2,6 +2,7 @@
   (:require
    [compojure.core :refer [defroutes GET POST PATCH DELETE]]
    [ring.util.response :as resp]
+   [buddy.hashers :as hashers]
 
    [server.models.users :refer [get-users get-user add-user validate-user delete-user update-user]]
    [server.view.users :as view]
@@ -27,7 +28,9 @@
   (let [data (-> request :params validate-user)]
     (if (:valid? data)
       (try
-        (add-user (:values data))
+        (-> (:values data)
+            (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
+            add-user)
         (->
          (resp/redirect "/")
          (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"}))
@@ -56,7 +59,9 @@
         data (-> request :params (clean-data #{:first-name :last-name :email :password-digest}) validate-user)]
     (if (:valid? data)
       (try
-        (update-user user-id (:values data))
+        (-> (:values data)
+            (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
+            (update-user user-id))
         (->
          (resp/redirect "/users")
          (assoc :flash {:type "info" :message "Пользователь успешно изменён"}))
