@@ -2,9 +2,10 @@
   (:require
    [compojure.core :refer [defroutes GET POST DELETE]]
    [ring.util.response :as resp]
+   [buddy.hashers :as hashers]
 
    [server.view.session :as view]
-   [server.models.users :refer [get-user-by-email-password]])
+   [server.models.users :refer [get-user-by-email]])
   (:gen-class))
 
 (defn session-new-handler
@@ -12,8 +13,8 @@
   (view/login request {}))
 
 (defn authenticate [email password]
-  (let [[user] (get-user-by-email-password email password)]
-    (when user user)))
+  (let [[user] (get-user-by-email email)]
+    (when (hashers/verify password (:password-digest user)) user)))
 
 (defn login-handler [request]
   (let [email (-> request :params :email)
@@ -26,7 +27,7 @@
                            :email (:email user)}))
       (view/login request {:error {:email email :message "Неправильный емейл или пароль"}}))))
 
-(defn clear-session [request]
+(defn clear-session-handler [request]
   (let [session (:session request)
         updated-session (dissoc session :user-id :email)]
     (-> (resp/redirect "/")
@@ -34,12 +35,6 @@
         (assoc :session updated-session))))
 
 (defroutes session-routes
-  (GET "/session/new"
-    request
-    (session-new-handler request))
-  (POST "/session"
-    request
-    (login-handler request))
-  (DELETE "/session"
-    request
-    (clear-session request)))
+  (GET "/session/new" request (session-new-handler request))
+  (POST "/session" request (login-handler request))
+  (DELETE "/session" request (clear-session-handler request)))
