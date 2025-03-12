@@ -67,10 +67,15 @@
 (defn statuses-delete-handler
   [request]
   (let [status-id (-> request :params :id to-number)]
-    (models/delete-status status-id)
-    (->
-     (resp/redirect "/statuses")
-     (assoc :flash {:type "info" :message "Статус успешно удалён"}))))
+    (try
+      (models/delete-status status-id)
+      (->
+       (resp/redirect "/statuses")
+       (assoc :flash {:type "info" :message "Статус успешно удалён"}))
+      (catch Exception _
+        (->
+         (resp/redirect "/statuses")
+         (assoc :flash {:type "danger" :message "Не удалось удалить статус"}))))))
 
 (defroutes statuses-routes
   (GET "/statuses" request (statuses-handler request))
