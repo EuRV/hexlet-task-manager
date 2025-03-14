@@ -4,33 +4,33 @@
    [ring.util.response :as resp]
    [buddy.hashers :as hashers]
 
-   [server.models.users :refer [get-users get-user add-user validate-user delete-user update-user]]
+   [server.models.users :as models]
    [server.view.users :as view]
    [server.helpers :refer [to-number clean-data]])
   (:gen-class))
 
 (defn users-handler
   [request]
-  (let [users (get-users)]
+  (let [users (models/get-users)]
     (if (seq (:error users))
       (->
        (assoc request :flash {:type "danger" :message (-> users :error :message)})
        (view/users-page (-> users :error :value)))
       (view/users-page request users))))
 
-(defn users-new-handler
-  ([request] (users-new-handler request {:errors {} :values {}}))
+(defn user-new-handler
+  ([request] (user-new-handler request {:errors {} :values {}}))
   ([request data]
    (view/users-new request data)))
 
-(defn users-create-handler
+(defn user-create-handler
   [request]
-  (let [data (-> request :params validate-user)]
+  (let [data (-> request :params models/validate-user)]
     (if (:valid? data)
       (try
         (-> (:values data)
             (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
-            add-user)
+            models/create-user)
         (->
          (resp/redirect "/")
          (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"}))
@@ -38,7 +38,7 @@
           (view/users-new request (assoc-in data [:errors :email] "Такой email уже существует"))))
       (view/users-new request data))))
 
-(defn users-edit-handler
+(defn user-edit-handler
   [request]
   (let [user-id (-> request :params :id to-number)
         session-user-id (-> request :session :user-id to-number)]
@@ -51,17 +51,17 @@
       (->
        (resp/redirect "/users")
        (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
-      :else (view/users-edit request {:errors {} :values (get-user user-id)}))))
+      :else (view/users-edit request {:errors {} :values (models/get-user user-id {:columns [:id :first-name :last-name :email]})}))))
 
-(defn users-update-handler
+(defn user-update-handler
   [request]
   (let [user-id (-> request :params :id to-number)
-        data (-> request :params (clean-data #{:first-name :last-name :email :password-digest}) validate-user)]
+        data (-> request :params (clean-data #{:first-name :last-name :email :password-digest}) models/validate-user)]
     (if (:valid? data)
       (try
         (-> (:values data)
             (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
-            (update-user user-id))
+            (models/update-user user-id))
         (->
          (resp/redirect "/users")
          (assoc :flash {:type "info" :message "Пользователь успешно изменён"}))
@@ -69,7 +69,7 @@
           (println (ex-message e))))
       (view/users-edit request data))))
 
-(defn users-delete-handler
+(defn user-delete-handler
   [request]
   (let [user-id (-> request :params :id to-number)
         session-user-id (-> request :session :user-id to-number)]
@@ -83,7 +83,7 @@
        (resp/redirect "/users")
        (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
       :else (do
-              (delete-user user-id)
+              (models/delete-user user-id)
               (let [session (:session request)
                     updated-session (dissoc session :user-id :email)]
                 (-> (resp/redirect "/users")
@@ -91,8 +91,8 @@
 
 (defroutes users-routes
   (GET "/users" request (users-handler request))
-  (GET "/users/new" request (users-new-handler request))
-  (GET "/users/:id/edit" request (users-edit-handler request))
-  (POST "/users" request (users-create-handler request))
-  (PATCH "/users/:id" request (users-update-handler request))
-  (DELETE "/users/:id" request (users-delete-handler request)))
+  (GET "/users/new" request (user-new-handler request))
+  (GET "/users/:id/edit" request (user-edit-handler request))
+  (POST "/users" request (user-create-handler request))
+  (PATCH "/users/:id" request (user-update-handler request))
+  (DELETE "/users/:id" request (user-delete-handler request)))
