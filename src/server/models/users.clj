@@ -72,11 +72,8 @@
       users)))
 
 (defn get-user
-  [id]
-  (db/query-by-id
-   :users
-   id
-   {:columns [:id :first-name :last-name :email :password-digest]}))
+  ([id] (get-user id {:columns [:id :first-name :last-name :email :password-digest]}))
+  ([id columns] (db/query-by-id :users id columns)))
 
 (defn get-user-by-email
   [email]
@@ -85,7 +82,7 @@
    {:email email}
    {:columns [:id :email :password-digest]}))
 
-(defn add-user
+(defn create-user
   [user]
   (db/insert-data :users user))
 
@@ -96,3 +93,7 @@
 (defn delete-user
   [id]
   (db/delete-by-key :users :id id))
+
+(comment
+  (get-user 1 {:columns [:id :first-name :last-name :email]})
+  :rcf)
