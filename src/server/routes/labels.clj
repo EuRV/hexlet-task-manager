@@ -11,12 +11,12 @@
 (defn labels-handler
   [request]
   (if (seq (:session request))
-    (let [content (models/get-labels)]
-      (if (seq (:error content))
+    (try
+      (view/labels-page request (models/get-labels))
+      (catch Exception e
         (->
-         (assoc request :flash {:type "danger" :message (-> content :error :message)})
-         (view/labels-page (-> content :error :value)))
-        (view/labels-page request content)))
+         (assoc request :flash {:type "danger" :message (ex-message e)})
+         (view/labels-page))))
     (resp/redirect "/")))
 
 (defn label-new-handler
