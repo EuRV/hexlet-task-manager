@@ -11,12 +11,12 @@
 
 (defn users-handler
   [request]
-  (let [users (models/get-users)]
-    (if (seq (:error users))
+  (try
+    (view/users-page request (models/get-users))
+    (catch Exception e
       (->
-       (assoc request :flash {:type "danger" :message (-> users :error :message)})
-       (view/users-page (-> users :error :value)))
-      (view/users-page request users))))
+       (assoc request :flash {:type "danger" :message (ex-message e)})
+       (view/users-page)))))
 
 (defn user-new-handler
   ([request] (user-new-handler request {:errors {} :values {}}))
