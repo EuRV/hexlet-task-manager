@@ -60,16 +60,13 @@
 
 (defn get-users
   []
-  (let [users (db/query-database ["SELECT
-                                     id,
-                                     CONCAT(first_name, ' ', last_name) AS fname,
-                                     email,
-                                     TO_CHAR(created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
-                                   FROM users
-                                   ORDER BY id ASC"])]
-    (if (seq (:error users))
-      users
-      users)))
+  (db/query-database ["SELECT
+                         id,
+                         CONCAT(first_name, ' ', last_name) AS fname,
+                         email,
+                         TO_CHAR(created_at, 'FMMM/FMDD/YYYY, HH12:MI:SS AM') AS created_at
+                       FROM users
+                       ORDER BY id ASC"]))
 
 (defn get-user
   ([id] (get-user id {:columns [:id :first-name :last-name :email :password-digest]}))
@@ -93,7 +90,3 @@
 (defn delete-user
   [id]
   (db/delete-by-key :users :id id))
-
-(comment
-  (get-user 1 {:columns [:id :first-name :last-name :email]})
-  :rcf)
