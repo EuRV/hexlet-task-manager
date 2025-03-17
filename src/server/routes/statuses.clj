@@ -11,12 +11,12 @@
 (defn statuses-handler
   [request]
   (if (seq (:session request))
-    (let [content (models/get-statuses)]
-     (if (seq (:error content))
-       (->
-        (assoc request :flash {:type "danger" :message (-> content :error :message)})
-        (view/statuses-page (-> content :error :value)))
-       (view/statuses-page request content)))
+    (try
+      (view/statuses-page request (models/get-statuses))
+      (catch Exception e
+        (-> request
+         (assoc :flash {:type "danger" :message (ex-message e)})
+         (view/statuses-page))))
     (resp/redirect "/")))
 
 (defn statuses-new-handler
