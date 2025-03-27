@@ -1,7 +1,9 @@
 (ns server.models.users
-  (:require [clojure.spec.alpha :as s]
-
-            [server.db.sql.queries :as db])
+  (:require
+   [buddy.hashers :as hashers]
+   [clojure.spec.alpha :as s]
+   [server.db.sql.queries :as db]
+   [server.helpers :refer [validate-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -43,20 +45,8 @@
    ::email "Не соответствует формату email"
    ::at-least-three "Должно быть не менее трех символов"})
 
-(defn validate-user
-  "Validates a user map and returns a map with :valid? and :errors keys."
-  [user]
-  (if (s/valid? :users/person user)
-    {:valid? true :errors {} :values user}
-    {:valid? false
-     :errors (->> (s/explain-data :users/person user)
-                  :clojure.spec.alpha/problems
-                  (reduce (fn
-                            [init problem]
-                            (assoc init (-> problem :in last) (get spec-errors (-> problem :via peek))))
-                          {}))
-     :values (->> (s/explain-data :users/person user)
-                  :clojure.spec.alpha/value)}))
+(def validate-user
+  (validate-data :users/person spec-errors))
 
 (defn get-users
   []
@@ -80,8 +70,22 @@
    {:columns [:id :email :password-digest]}))
 
 (defn create-user
-  [user]
-  (db/insert-data :users user))
+  [data]
+  (let [user (validate-user data)]
+    (if (:valid? user)
+      (try
+        (-> (:values user)
+            (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
+            (db/insert-data :users))
+        (catch org.postgresql.util.PSQLException e
+          (let [sql-state (.getSQLState e)]
+            (if (= sql-state "23505")
+              (-> user
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:email "Пользователь с таким email уже существует"}))
+              {:error "Ошибка при сохранении пользователя"}))))
+      (-> user
+          (dissoc :valid?)))))
 
 (defn update-user
   [values id]
