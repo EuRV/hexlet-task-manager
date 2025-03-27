@@ -25,18 +25,12 @@
 
 (defn user-create-handler
   [request]
-  (let [data (-> request :params models/validate-user)]
-    (if (:valid? data)
-      (try
-        (-> (:values data)
-            (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
-            models/create-user)
-        (->
-         (resp/redirect "/")
-         (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"}))
-        (catch Exception _
-          (view/users-new request (assoc-in data [:errors :email] "Такой email уже существует"))))
-      (view/users-new request data))))
+  (let [data (-> request :params models/create-user)]
+    (if (:errors data)
+      (view/users-new request data)
+      (->
+       (resp/redirect "/")
+       (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"})))))
 
 (defn user-edit-handler
   [request]
