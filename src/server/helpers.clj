@@ -1,4 +1,5 @@
-(ns server.helpers)
+(ns server.helpers
+  (:require [clojure.spec.alpha :as s]))
 
 (defn to-number [value]
   (cond
@@ -27,3 +28,18 @@
                  :else acc))
              {}
              task))
+
+(defn validate-data
+  [entity spec-errors]
+  (fn [data]
+    (if (s/valid? entity data)
+      {:valid? true :errors {} :values data}
+      {:valid? false
+       :errors (->> (s/explain-data entity data)
+                    :clojure.spec.alpha/problems
+                    (reduce (fn
+                              [init problem]
+                              (assoc init (-> problem :in last) (get spec-errors (-> problem :via peek))))
+                            {}))
+       :values (->> (s/explain-data entity data)
+                    :clojure.spec.alpha/value)})))
