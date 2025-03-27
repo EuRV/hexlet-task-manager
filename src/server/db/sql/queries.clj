@@ -47,7 +47,7 @@
        (throw e)))))
 
 (defn insert-data
-  [table record-data]
+  [record-data table]
   (try
     (with-open [connection (jdbc/get-connection ds)]
       (sql/insert! connection table record-data jdbc/unqualified-snake-kebab-opts))
