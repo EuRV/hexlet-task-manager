@@ -89,7 +89,16 @@
 
 (defn update-user
   [values id]
-  (db/update-data :users values {:id id}))
+  (let [user (validate-user values)]
+     (if (:valid? user)
+       (try
+         (-> (:values user)
+             (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
+             (db/update-data :users {:id id}))
+         (catch Exception e
+           (println e)))
+       (-> user
+           (dissoc :valid?)))))
 
 (defn delete-user
   [id]
