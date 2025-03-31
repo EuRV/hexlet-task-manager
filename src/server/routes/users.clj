@@ -49,19 +49,19 @@
 
 (defn user-update-handler
   [request]
-  (let [user-id (-> request :params :id to-number)
-        data (-> request :params (clean-data #{:first-name :last-name :email :password-digest}) models/validate-user)]
-    (if (:valid? data)
-      (try
-        (-> (:values data)
-            (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
-            (models/update-user user-id))
-        (->
-         (resp/redirect "/users")
-         (assoc :flash {:type "info" :message "Пользователь успешно изменён"}))
-        (catch Exception e
-          (println (ex-message e))))
-      (view/users-edit request data))))
+  (let [user-id (-> request
+                    :params
+                    :id
+                    to-number)
+        data (-> request
+                 :params
+                 (clean-data #{:first-name :last-name :email :password-digest})
+                 (models/update-user user-id))]
+    (if (:errors data)
+      (view/users-edit request data)
+      (->
+       (resp/redirect "/users")
+       (assoc :flash {:type "info" :message "Пользователь успешно изменён"})))))
 
 (defn user-delete-handler
   [request]
