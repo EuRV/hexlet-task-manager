@@ -55,7 +55,7 @@
       (throw e))))
 
 (defn update-data
-  [table record-data where-params]
+  [record-data where-params table]
   (try
     (with-open [connection (jdbc/get-connection ds)]
       (sql/update! connection table record-data where-params jdbc/unqualified-snake-kebab-opts))
