@@ -1,7 +1,9 @@
 (ns server.models.statuses
-  (:require [clojure.spec.alpha :as s]
-  
-            [server.db.sql.queries :as db])
+  (:require
+   [clojure.spec.alpha :as s]
+
+   [server.db.sql.queries :as db]
+   [server.helpers :refer [validate-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -23,24 +25,8 @@
   {::at-least-one "Должно быть не менее одного символа"
    ::string "Должна быть строкой"})
 
-(defn validate-statuses
-  "Validates a statuses map and returns a map with :valid? and :errors keys."
-  [statuses]
-  (if (s/valid? :statuses/entity statuses)
-    {:valid? true :errors {} :values statuses}
-    {:valid? false
-     :errors (->> (s/explain-data :statuses/entity statuses)
-                  :clojure.spec.alpha/problems
-                  (reduce (fn
-                            [init problem]
-                            (assoc init (-> problem :in last) (get spec-errors (-> problem :via peek))))
-                          {}))
-     :values (->> (s/explain-data :statuses/entity statuses)
-                  :clojure.spec.alpha/value)}))
-
-(defn create-statuses
-  [statuses]
-  (db/insert-data :statuses statuses))
+(def validate-status
+  (validate-data :statuses/entity spec-errors))
 
 (defn get-statuses
   []
@@ -54,9 +40,43 @@
   [id]
   (db/query-by-id :statuses id))
 
+(defn create-statuses
+  [data]
+  (let [status (validate-status data)]
+    (if (:valid? status)
+      (try
+        (-> (:values status)
+            (db/insert-data :statuses))
+        (catch org.postgresql.util.PSQLException e
+          (let [sql-state (.getSQLState e)]
+            (if (= sql-state "23505")
+              (-> status
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Такой статус уже существует"}))
+              (-> status
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))))
+      (-> status
+          (dissoc :valid?)))))
+
 (defn update-status
-  [id values]
-  (db/update-data :statuses values {:id id}))
+  [data id]
+  (let [status (validate-status data)]
+    (if (:valid? status)
+      (try
+        (-> (:values status)
+            (db/update-data {:id id} :statuses))
+        (catch org.postgresql.util.PSQLException e
+          (let [sql-state (.getSQLState e)]
+            (if (= sql-state "23505")
+              (-> status
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Такой статус уже существует"}))
+              (-> status
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))))
+      (-> status
+          (dissoc :valid?)))))
 
 (defn delete-status
   [id]
