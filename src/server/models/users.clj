@@ -83,7 +83,9 @@
               (-> user
                   (dissoc :valid?)
                   (assoc-in [:errors] {:email "Пользователь с таким email уже существует"}))
-              {:error "Ошибка при сохранении пользователя"}))))
+              (-> user
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))))
       (-> user
           (dissoc :valid?)))))
 
@@ -95,8 +97,15 @@
          (-> (:values user)
              (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
              (db/update-data :users {:id id}))
-         (catch Exception e
-           (println e)))
+         (catch org.postgresql.util.PSQLException e
+           (let [sql-state (.getSQLState e)]
+             (if (= sql-state "23505")
+               (-> user
+                   (dissoc :valid?)
+                   (assoc-in [:errors] {:email "Пользователь с таким email уже существует"}))
+               (-> user
+                   (dissoc :valid?)
+                   (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))))
        (-> user
            (dissoc :valid?)))))
 
