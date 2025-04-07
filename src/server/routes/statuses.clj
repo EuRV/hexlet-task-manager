@@ -33,49 +33,41 @@
 
 (defn statuses-create-handler
   [request]
-  (let [data (-> request :params models/validate-statuses)]
-    (if (:valid? data)
-      (try
-        (models/create-statuses (:values data))
-        (->
-         (resp/redirect "/statuses")
-         (assoc :flash {:type "info" :message "Статус успешно создан"}))
-        (catch Exception _
-          (->
-           request
-           (assoc :flash {:type "danger" :message "Не удалось создать статус"})
-           (view/statuses-new (assoc-in data [:errors :name] "Такой статус уже существует")))))
-      (view/statuses-new request data))))
+  (let [data (-> request :params models/create-statuses)]
+    (if (:errors data)
+      (-> request
+          (assoc :flash {:type "danger" :message "Не удалось создать статус"})
+          (view/statuses-new data))
+      (-> (resp/redirect "/statuses")
+          (assoc :flash {:type "info" :message "Статус успешно создан"})))))
 
 (defn statuses-update-handler
   [request]
-  (let [status-id (-> request :params :id to-number)
-        data (-> request :params (clean-data #{:name}) models/validate-statuses)]
-    (if (:valid? data)
-      (try
-        (models/update-status status-id (:values data))
-        (->
-         (resp/redirect "/statuses")
-         (assoc :flash {:type "info" :message "Статус успешно изменён"}))
-        (catch Exception e
-          (println (ex-message e))))
-      (->
-       request 
-       (assoc :flash {:type "danger" :message "Не удалось изменить статус"})
-       (view/statuses-edit data)))))
+  (let [status-id (-> request
+                      :params
+                      :id
+                      to-number)
+        data (-> request
+                 :params
+                 (clean-data #{:name})
+                 (models/update-status status-id))]
+    (if (:errors data)
+      (-> request
+          (assoc :flash {:type "danger" :message "Не удалось изменить статус"})
+          (view/statuses-edit data))
+      (-> (resp/redirect "/statuses")
+          (assoc :flash {:type "info" :message "Статус успешно изменён"})))))
 
 (defn statuses-delete-handler
   [request]
   (let [status-id (-> request :params :id to-number)]
     (try
       (models/delete-status status-id)
-      (->
-       (resp/redirect "/statuses")
-       (assoc :flash {:type "info" :message "Статус успешно удалён"}))
+      (-> (resp/redirect "/statuses")
+          (assoc :flash {:type "info" :message "Статус успешно удалён"}))
       (catch Exception _
-        (->
-         (resp/redirect "/statuses")
-         (assoc :flash {:type "danger" :message "Не удалось удалить статус"}))))))
+        (-> (resp/redirect "/statuses")
+            (assoc :flash {:type "danger" :message "Не удалось удалить статус"}))))))
 
 (defroutes statuses-routes
   (GET "/statuses" request (statuses-handler request))
