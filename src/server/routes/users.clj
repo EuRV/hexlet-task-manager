@@ -2,7 +2,6 @@
   (:require
    [compojure.core :refer [defroutes GET POST PATCH DELETE]]
    [ring.util.response :as resp]
-   [buddy.hashers :as hashers]
 
    [server.models.users :as models]
    [server.view.users :as view]
@@ -14,9 +13,8 @@
   (try
     (view/users-page request (models/get-users))
     (catch Exception e
-      (->
-       (assoc request :flash {:type "danger" :message (ex-message e)})
-       (view/users-page)))))
+      (-> (assoc request :flash {:type "danger" :message (ex-message e)})
+          (view/users-page)))))
 
 (defn user-new-handler
   ([request] (user-new-handler request {:errors {} :values {}}))
@@ -28,9 +26,8 @@
   (let [data (-> request :params models/create-user)]
     (if (:errors data)
       (view/users-new request data)
-      (->
-       (resp/redirect "/")
-       (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"})))))
+      (-> (resp/redirect "/")
+          (assoc :flash {:type "info" :message "Пользователь успешно зарегистрирован"})))))
 
 (defn user-edit-handler
   [request]
@@ -38,13 +35,11 @@
         session-user-id (-> request :session :user-id to-number)]
     (cond
       (nil? session-user-id)
-      (->
-       (resp/redirect "/")
-       (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
+      (-> (resp/redirect "/")
+          (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
       (not= user-id session-user-id)
-      (->
-       (resp/redirect "/users")
-       (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
+      (-> (resp/redirect "/users")
+          (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
       :else (view/users-edit request {:errors {} :values (models/get-user user-id {:columns [:id :first-name :last-name :email]})}))))
 
 (defn user-update-handler
@@ -59,9 +54,8 @@
                  (models/update-user user-id))]
     (if (:errors data)
       (view/users-edit request data)
-      (->
-       (resp/redirect "/users")
-       (assoc :flash {:type "info" :message "Пользователь успешно изменён"})))))
+      (-> (resp/redirect "/users")
+          (assoc :flash {:type "info" :message "Пользователь успешно изменён"})))))
 
 (defn user-delete-handler
   [request]
@@ -69,13 +63,11 @@
         session-user-id (-> request :session :user-id to-number)]
     (cond
       (nil? session-user-id)
-      (->
-       (resp/redirect "/")
-       (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
+      (-> (resp/redirect "/")
+          (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
       (not= user-id session-user-id)
-      (->
-       (resp/redirect "/users")
-       (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
+      (-> (resp/redirect "/users")
+          (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
       :else (do
               (models/delete-user user-id)
               (let [session (:session request)
