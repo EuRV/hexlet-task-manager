@@ -10,21 +10,16 @@
 
 (defn statuses-handler
   [request]
-  (if (seq (:session request))
-    (try
-      (view/statuses-page request (models/get-statuses))
-      (catch Exception e
-        (-> request
-         (assoc :flash {:type "danger" :message (ex-message e)})
-         (view/statuses-page))))
-    (resp/redirect "/")))
+  (try
+    (view/statuses-page request (models/get-statuses))
+    (catch Exception e
+      (-> request
+          (assoc :flash {:type "danger" :message (ex-message e)})
+          (view/statuses-page)))))
 
 (defn statuses-new-handler
   ([request] (statuses-new-handler request {:errors {} :values {}}))
-  ([request data]
-   (if (seq (:session request))
-     (view/statuses-new request data)
-     (resp/redirect "/"))))
+  ([request data] (view/statuses-new request data)))
 
 (defn statuses-edit-handler
   [request]
