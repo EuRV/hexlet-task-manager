@@ -13,30 +13,25 @@
   (:gen-class))
 
 (defn tasks-handler
-  [{:keys [session params] :as request}]
-  (if (seq session)
-    (let [{:keys [status executor label is-creator-user]} params
-          params-query (->>
-                        [(when status [:status-id (h/to-number status)])
-                         (when executor [:executor-id (h/to-number executor)])
-                         (when label [:label-id (h/to-number label)])
-                         (when is-creator-user [:creator-id (-> request :session :user-id)])]
-                        (remove #(nil? (second %)))
-                        (into {}))
-          content (models/get-tasks params-query)]
-      (if (seq (:error content))
-        (->
-         (assoc request :flash {:type "danger" :message (-> content :error :message)})
-         (view/tasks-page (-> content :error :value) (get-statuses) (get-users) (get-labels)))
-        (view/tasks-page request content (get-statuses) (get-users) (get-labels))))
-    (resp/redirect "/")))
+  [{:keys [params] :as request}]
+  (let [{:keys [status executor label is-creator-user]} params
+        params-query (->>
+                      [(when status [:status-id (h/to-number status)])
+                       (when executor [:executor-id (h/to-number executor)])
+                       (when label [:label-id (h/to-number label)])
+                       (when is-creator-user [:creator-id (-> request :session :user-id)])]
+                      (remove #(nil? (second %)))
+                      (into {}))
+        content (models/get-tasks params-query)]
+    (if (seq (:error content))
+      (->
+       (assoc request :flash {:type "danger" :message (-> content :error :message)})
+       (view/tasks-page (-> content :error :value) (get-statuses) (get-users) (get-labels)))
+      (view/tasks-page request content (get-statuses) (get-users) (get-labels)))))
 
 (defn task-new-handler
   ([request] (task-new-handler request {:errors {} :values {}}))
-  ([{:keys [session] :as request} data]
-   (if (seq session)
-     (view/task-new request data (get-statuses) (get-users) (get-labels))
-     (resp/redirect "/"))))
+  ([request data] (view/task-new request data (get-statuses) (get-users) (get-labels))))
 
 (defn task-view-handler
   [request]
