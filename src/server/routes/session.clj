@@ -34,7 +34,9 @@
         (assoc :flash {:type "info" :message "Вы разлогинены"})
         (assoc :session updated-session))))
 
-(defroutes session-routes
+(defroutes public-session-routes
   (GET "/session/new" request (session-new-handler request))
-  (POST "/session" request (login-handler request))
+  (POST "/session" request (login-handler request)))
+
+(defroutes protected-session-routes
   (DELETE "/session" request (clear-session-handler request)))
