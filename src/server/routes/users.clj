@@ -67,10 +67,12 @@
           (-> (resp/redirect "/users")
               (assoc :session updated-session)))))))
 
-(defroutes users-routes
+(defroutes public-users-routes
   (GET "/users" request (users-handler request))
   (GET "/users/new" request (user-new-handler request))
-  (POST "/users" request (user-create-handler request))
+  (POST "/users" request (user-create-handler request)))
+
+(defroutes protected-users-routes
   (GET "/users/:id/edit" request (user-edit-handler request))
   (PATCH "/users/:id" request (user-update-handler request))
   (DELETE "/users/:id" request (user-delete-handler request)))
