@@ -1,5 +1,6 @@
 (ns server.middleware
   (:require
+   [ring.util.response :as resp]
    [clojure.string :as string]
    [server.locales :refer [locales]])
   (:gen-class))
@@ -11,7 +12,11 @@
           translations (get locales lang {})]
       (handler (assoc request :translations translations)))))
 
-
-(comment
-  (get locales :ru {})
-  :rcf)
+(defn wrap-protected
+  ([handler] (wrap-protected handler "/"))
+  ([handler redirect-url]
+   (fn [request]
+     (if (get-in request [:session :user-id])
+       (handler request)
+       (-> (resp/redirect redirect-url)
+           (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))))))
