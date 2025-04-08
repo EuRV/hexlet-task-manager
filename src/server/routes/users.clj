@@ -33,14 +33,10 @@
   [request]
   (let [user-id (-> request :params :id to-number)
         session-user-id (-> request :session :user-id to-number)]
-    (cond
-      (nil? session-user-id)
-      (-> (resp/redirect "/")
-          (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
-      (not= user-id session-user-id)
+    (if (not= user-id session-user-id)
       (-> (resp/redirect "/users")
           (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
-      :else (view/users-edit request {:errors {} :values (models/get-user user-id {:columns [:id :first-name :last-name :email]})}))))
+      (view/users-edit request {:errors {} :values (models/get-user user-id {:columns [:id :first-name :last-name :email]})}))))
 
 (defn user-update-handler
   [request]
@@ -61,24 +57,20 @@
   [request]
   (let [user-id (-> request :params :id to-number)
         session-user-id (-> request :session :user-id to-number)]
-    (cond
-      (nil? session-user-id)
-      (-> (resp/redirect "/")
-          (assoc :flash {:type "danger" :message "Доступ запрещён! Пожалуйста, авторизируйтесь."}))
-      (not= user-id session-user-id)
+    (if (not= user-id session-user-id)
       (-> (resp/redirect "/users")
           (assoc :flash {:type "danger" :message "Вы не можете редактировать или удалять другого пользователя"}))
-      :else (do
-              (models/delete-user user-id)
-              (let [session (:session request)
-                    updated-session (dissoc session :user-id :email)]
-                (-> (resp/redirect "/users")
-                    (assoc :session updated-session)))))))
+      (do
+        (models/delete-user user-id)
+        (let [session (:session request)
+              updated-session (dissoc session :user-id :email)]
+          (-> (resp/redirect "/users")
+              (assoc :session updated-session)))))))
 
 (defroutes users-routes
   (GET "/users" request (users-handler request))
   (GET "/users/new" request (user-new-handler request))
-  (GET "/users/:id/edit" request (user-edit-handler request))
   (POST "/users" request (user-create-handler request))
+  (GET "/users/:id/edit" request (user-edit-handler request))
   (PATCH "/users/:id" request (user-update-handler request))
   (DELETE "/users/:id" request (user-delete-handler request)))
