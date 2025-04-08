@@ -10,21 +10,16 @@
 
 (defn labels-handler
   [request]
-  (if (seq (:session request))
-    (try
-      (view/labels-page request (models/get-labels))
-      (catch Exception e
-        (->
-         (assoc request :flash {:type "danger" :message (ex-message e)})
-         (view/labels-page))))
-    (resp/redirect "/")))
+  (try
+    (view/labels-page request (models/get-labels))
+    (catch Exception e
+      (->
+       (assoc request :flash {:type "danger" :message (ex-message e)})
+       (view/labels-page)))))
 
 (defn label-new-handler
   ([request] (label-new-handler request {:errors {} :values {}}))
-  ([request data]
-   (if (seq (:session request))
-     (view/labels-new-page request data)
-     (resp/redirect "/"))))
+  ([request data] (view/labels-new-page request data)))
 
 (defn label-edit-handler
   [request]
