@@ -3,7 +3,7 @@
    [buddy.hashers :as hashers]
    [clojure.spec.alpha :as s]
    [server.db.sql.queries :as db]
-   [server.helpers :refer [validate-data]])
+   [server.helpers :refer [validate-data clean-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -71,7 +71,9 @@
 
 (defn create-user
   [data]
-  (let [user (validate-user data)]
+  (let [user (-> data
+                 (clean-data #{:first-name :last-name :email :password-digest})
+                 validate-user)]
     (if (:valid? user)
       (try
         (-> (:values user)
@@ -90,8 +92,10 @@
           (dissoc :valid?)))))
 
 (defn update-user
-  [values id]
-  (let [user (validate-user values)]
+  [data id]
+  (let [user (-> data
+                 (clean-data #{:first-name :last-name :email :password-digest})
+                 validate-user)]
      (if (:valid? user)
        (try
          (-> (:values user)
