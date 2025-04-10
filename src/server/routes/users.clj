@@ -5,7 +5,7 @@
 
    [server.models.users :as models]
    [server.view.users :as view]
-   [server.helpers :refer [to-number clean-data]])
+   [server.helpers :refer [to-number]])
   (:gen-class))
 
 (defn users-handler
@@ -23,7 +23,9 @@
 
 (defn user-create-handler
   [request]
-  (let [data (-> request :params models/create-user)]
+  (let [data (-> request
+                 :params
+                 models/create-user)]
     (if (:errors data)
       (view/users-new request data)
       (-> (resp/redirect "/")
@@ -46,7 +48,6 @@
                     to-number)
         data (-> request
                  :params
-                 (clean-data #{:first-name :last-name :email :password-digest})
                  (models/update-user user-id))]
     (if (:errors data)
       (view/users-edit request data)
