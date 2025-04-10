@@ -28,39 +28,24 @@
 
 (defn label-create-handler
   [request]
-  (let [data (-> request :params models/validate-label)]
-    (if (:valid? data)
-      (try
-        (models/create-label (:values data))
-        (->
-         (resp/redirect "/labels")
-         (assoc :flash {:type "info" :message "Метка успешно создана"}))
-        (catch Exception _
-          (->
-           request
-           (assoc :flash {:type "danger" :message "Не удалось создать метку"})
-           (view/labels-new-page (assoc-in data [:errors :name] "Такая метка уже существует")))))
-      (->
-       request
-       (assoc :flash {:type "danger" :message "Не удалось создать метку"})
-       (view/labels-new-page data)))))
+  (let [data (-> request :params models/create-label)]
+    (if (:errors data)
+      (-> request
+          (assoc :flash {:type "danger" :message "Не удалось создать метку"})
+          (view/labels-new-page data))
+      (-> (resp/redirect "/labels")
+          (assoc :flash {:type "info" :message "Метка успешно создана"})))))
 
 (defn label-update-handler
   [request]
   (let [label-id (-> request :params :id to-number)
-        data (-> request :params (clean-data #{:name}) models/validate-label)]
-    (if (:valid? data)
-      (try
-        (models/update-label label-id (:values data))
-        (->
-         (resp/redirect "/labels")
-         (assoc :flash {:type "info" :message "Метка успешно изменена"}))
-        (catch Exception e
-          (println (ex-message e))))
-      (->
-       request
-       (assoc :flash {:type "danger" :message "Не удалось изменить метку"})
-       (view/labels-edit-page data)))))
+        data (-> request :params (clean-data #{:name}) (models/update-label label-id))]
+    (if (:errors data)
+      (-> request
+          (assoc :flash {:type "danger" :message "Не удалось изменить метку"})
+          (view/labels-edit-page data))
+      (-> (resp/redirect "/labels")
+          (assoc :flash {:type "info" :message "Метка успешно изменена"})))))
 
 (defn label-delete-handler
   [request]
