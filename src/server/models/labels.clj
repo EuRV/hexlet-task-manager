@@ -2,7 +2,8 @@
   (:require
    [clojure.spec.alpha :as s]
 
-   [server.db.sql.queries :as db])
+   [server.db.sql.queries :as db]
+   [server.helpers :refer [validate-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -24,24 +25,27 @@
   {::at-least-one "Должно быть не менее одного символа"
    ::string "Должна быть строкой"})
 
-(defn validate-label
-  "Validates a labels map and returns a map with :valid? and :errors keys."
-  [labels]
-  (if (s/valid? :labels/entity labels)
-    {:valid? true :errors {} :values labels}
-    {:valid? false
-     :errors (->> (s/explain-data :labels/entity labels)
-                  :clojure.spec.alpha/problems
-                  (reduce (fn
-                            [init problem]
-                            (assoc init (-> problem :in last) (get spec-errors (-> problem :via peek))))
-                          {}))
-     :values (->> (s/explain-data :labels/entity labels)
-                  :clojure.spec.alpha/value)}))
+(def validate-label
+  (validate-data :labels/entity spec-errors))
 
 (defn create-label
-  [label]
-  (db/insert-data :labels label))
+  [data]
+  (let [label (validate-label data)]
+    (if (:valid? label)
+      (try
+        (-> (:values label)
+            (db/insert-data :labels))
+        (catch org.postgresql.util.PSQLException e
+          (let [sql-state (.getSQLState e)]
+            (if (= sql-state "23505")
+              (-> label
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Такая метка уже существует"}))
+              (-> label
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))))
+      (-> label
+          (dissoc :valid?)))))
 
 (defn get-labels
   []
@@ -57,8 +61,23 @@
   (db/query-by-id :labels id))
 
 (defn update-label
-  [id values]
-  (db/update-data :labels values {:id id}))
+  [data id]
+  (let [label (validate-label data)]
+    (if (:valid? label)
+      (try
+        (-> (:values label)
+            (db/update-data :labels {:id id}))
+        (catch org.postgresql.util.PSQLException e
+          (let [sql-state (.getSQLState e)]
+            (if (= sql-state "23505")
+              (-> label
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Такая метка уже существует"}))
+              (-> label
+                  (dissoc :valid?)
+                  (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))))
+      (-> label
+          (dissoc :valid?)))))
 
 (defn delete-label
   [id]
