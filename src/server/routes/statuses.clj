@@ -28,7 +28,9 @@
 
 (defn statuses-create-handler
   [request]
-  (let [data (-> request :params models/create-statuses)]
+  (let [data (-> request
+                 :params
+                 models/create-statuses)]
     (if (:errors data)
       (-> request
           (assoc :flash {:type "danger" :message "Не удалось создать статус"})
@@ -44,7 +46,6 @@
                       to-number)
         data (-> request
                  :params
-                 (clean-data #{:name})
                  (models/update-status status-id))]
     (if (:errors data)
       (-> request
