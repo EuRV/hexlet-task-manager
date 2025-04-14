@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as s]
 
    [server.db.sql.queries :as db]
-   [server.helpers :refer [validate-data]])
+   [server.helpers :refer [validate-data clean-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -42,7 +42,9 @@
 
 (defn create-statuses
   [data]
-  (let [status (validate-status data)]
+  (let [status (-> data
+                   (clean-data #{:name})
+                   validate-status)]
     (if (:valid? status)
       (try
         (-> (:values status)
@@ -61,7 +63,9 @@
 
 (defn update-status
   [data id]
-  (let [status (validate-status data)]
+  (let [status (-> data
+                   (clean-data #{:name})
+                   validate-status)]
     (if (:valid? status)
       (try
         (-> (:values status)
