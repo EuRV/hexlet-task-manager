@@ -100,7 +100,7 @@
        (try
          (-> (:values user)
              (update :password-digest #(hashers/encrypt % {:algorithm :bcrypt}))
-             (db/update-data :users {:id id}))
+             (db/update-data {:id id} :users))
          (catch org.postgresql.util.PSQLException e
            (let [sql-state (.getSQLState e)]
              (if (= sql-state "23505")
