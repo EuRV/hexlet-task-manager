@@ -5,7 +5,7 @@
 
    [server.models.statuses :as models]
    [server.view.statuses :as view]
-   [server.helpers :refer [to-number clean-data]])
+   [server.helpers :refer [to-number]])
   (:gen-class))
 
 (defn statuses-handler
