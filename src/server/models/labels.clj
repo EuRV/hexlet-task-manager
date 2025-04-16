@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as s]
 
    [server.db.sql.queries :as db]
-   [server.helpers :refer [validate-data]])
+   [server.helpers :refer [validate-data clean-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -30,7 +30,9 @@
 
 (defn create-label
   [data]
-  (let [label (validate-label data)]
+  (let [label (-> data
+                  (clean-data #{:name})
+                  validate-label)]
     (if (:valid? label)
       (try
         (-> (:values label)
@@ -62,7 +64,9 @@
 
 (defn update-label
   [data id]
-  (let [label (validate-label data)]
+  (let [label (-> data
+                  (clean-data #{:name})
+                  validate-label)]
     (if (:valid? label)
       (try
         (-> (:values label)
