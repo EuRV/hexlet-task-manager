@@ -5,7 +5,7 @@
   
    [server.models.labels :as models]
    [server.view.labels :as view]
-   [server.helpers :refer [to-number clean-data]])
+   [server.helpers :refer [to-number]])
   (:gen-class))
 
 (defn labels-handler
@@ -39,7 +39,7 @@
 (defn label-update-handler
   [request]
   (let [label-id (-> request :params :id to-number)
-        data (-> request :params (clean-data #{:name}) (models/update-label label-id))]
+        data (-> request :params (models/update-label label-id))]
     (if (:errors data)
       (-> request
           (assoc :flash {:type "danger" :message "Не удалось изменить метку"})
