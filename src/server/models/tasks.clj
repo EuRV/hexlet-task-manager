@@ -2,7 +2,8 @@
   (:require
    [clojure.spec.alpha :as s]
    [clojure.string :as string]
-   [server.db.sql.queries :as db])
+   [server.db.sql.queries :as db]
+   [server.helpers :refer [clean-task-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -74,8 +75,21 @@
     pgarray))
 
 (defn create-task
-  [task]
-  (db/insert-data :tasks task))
+  [data]
+  (let [validated-data (-> data
+                        clean-task-data
+                        validate-task)]
+    (if (:valid? validated-data)
+      (try
+        (let [task (dissoc (:values validated-data) :labels)
+              labels (:labels (:values validated-data))]
+          (db/create-task-with-labels task labels))
+        (catch Exception _
+          (-> validated-data
+              (dissoc :valid?)
+              (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))
+      (-> validated-data
+          (dissoc :valid?)))))
 
 (defn get-tasks
   [& {:keys [status-id creator-id executor-id label-id]}]
@@ -135,8 +149,21 @@
    {:columns [:id :name :description :status-id :creator-id :executor-id]}))
 
 (defn update-task
-  [id values]
-  (db/update-data :tasks values {:id id}))
+  [data id]
+  (let [validated-data (-> data
+                        clean-task-data
+                        validate-task)]
+    (if (:valid? validated-data)
+      (try
+        (let [task (dissoc (:values validated-data) :labels)
+              labels (:labels (:values validated-data))]
+          (db/update-task-with-labels id task labels))
+        (catch Exception _
+          (-> validated-data
+              (dissoc :valid?)
+              (assoc-in [:errors] {:name "Какая-то ошибка базы данных"}))))
+      (-> validated-data
+          (dissoc :valid?)))))
 
 (defn delete-task
   [id]
