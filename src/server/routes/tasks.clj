@@ -44,50 +44,28 @@
 
 (defn task-create-handler
   [{:keys [params session] :as request}]
-  (let [task (->
-              params
-              (assoc :creator-id (:user-id session))
-              h/clean-task-data
-              models/validate-task)]
-    (if (:valid? task)
-      (try
-        (db/create-task-with-labels (dissoc (:values task) :labels) (:labels (:values task)))
-        (->
-         (resp/redirect "/tasks")
-         (assoc :flash {:type "info" :message "Задача успешно создана"}))
-        (catch Exception _
-          (->
-           request
-           (assoc :flash {:type "danger" :message "Ошибка базы данных"})
-           (view/task-new task (get-statuses) (get-users) (get-labels)))))
-      (->
-       request
-       (assoc :flash {:type "danger" :message "Не удалось создать задачу"})
-       (view/task-new task (get-statuses) (get-users) (get-labels))))
-    ))
+  (let [data (-> params
+                 (assoc :creator-id (:user-id session))
+                 models/create-task)]
+    (if (:errors data)
+      (-> request
+          (assoc :flash {:type "danger" :message "Не удалось создать задачу"})
+          (view/task-new data (get-statuses) (get-users) (get-labels)))
+      (-> (resp/redirect "/tasks")
+          (assoc :flash {:type "info" :message "Задача успешно создана"})))))
 
 (defn task-update-handler
   [{:keys [params session] :as request}]
-  (let [task (->
-              params
-              (assoc :creator-id (:user-id session))
-              h/clean-task-data
-              models/validate-task)]
-    (if (:valid? task)
-      (try
-        (db/update-task-with-labels (-> params :id h/to-number) (dissoc (:values task) :labels) (:labels (:values task)))
-        (->
-         (resp/redirect "/tasks")
-         (assoc :flash {:type "info" :message "Задача успешно изменена"}))
-        (catch Exception _
-          (->
-           request
-           (assoc :flash {:type "danger" :message "Ошибка базы данных"})
-           (view/task-edit task (get-statuses) (get-users) (get-labels)))))
+  (let [data (-> params
+                 (assoc :creator-id (:user-id session))
+                 (models/update-task (-> params :id h/to-number)))]
+    (if (:errors data)
+      (-> request
+          (assoc :flash {:type "danger" :message "Не удалось изменить задачу"})
+          (view/task-edit data (get-statuses) (get-users) (get-labels)))
       (->
-       request
-       (assoc :flash {:type "danger" :message "Не удалось изменить задачу"})
-       (view/task-edit task (get-statuses) (get-users) (get-labels))))))
+       (resp/redirect "/tasks")
+       (assoc :flash {:type "info" :message "Задача успешно изменена"})))))
 
 (defn task-delete-handler
   [request]
