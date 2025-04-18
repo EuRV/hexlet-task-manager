@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as s]
    [clojure.string :as string]
    [server.db.sql.queries :as db]
-   [server.helpers :refer [clean-task-data]])
+   [server.helpers :refer [clean-task-data validate-data]])
   (:gen-class))
 
 (defn at-least [n]
@@ -55,19 +55,8 @@
    ::vector "Должен быть вектор"
    ::numeric-items "Вектор содержит нечисловые элементы"})
 
-(defn validate-task
-  [task]
-  (if (s/valid? :tasks/entity task)
-    {:valid? true :errors {} :values task}
-    {:valid? false
-     :errors (->> (s/explain-data :tasks/entity task)
-                  :clojure.spec.alpha/problems
-                  (reduce (fn
-                            [init problem]
-                            (assoc init (-> problem :path peek) (get spec-errors (-> problem :via peek))))
-                          {}))
-     :values (->> (s/explain-data :tasks/entity task)
-                  :clojure.spec.alpha/value)}))
+(def validate-task
+  (validate-data :tasks/entity spec-errors))
 
 (defn pgarray-to-vector [pgarray]
   (if (and (some? pgarray) (instance? org.postgresql.jdbc.PgArray pgarray))
