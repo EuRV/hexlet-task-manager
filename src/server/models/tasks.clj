@@ -16,6 +16,10 @@
 
 (s/def ::number number?)
 
+(s/def ::vector (s/and coll? vector?))
+
+(s/def ::numeric-items (s/coll-of number? :kind vector?))
+
 (s/def ::empty #(not (nil? %)))
 
 (s/def :tasks/name
@@ -31,18 +35,24 @@
 
 (s/def :tasks/executor-id ::number)
 
+(s/def :tasks/labels
+  (s/and ::vector ::numeric-items))
+
 (s/def :tasks/entity
   (s/keys :req-un [:tasks/name
                    :tasks/status-id
                    :tasks/creator-id]
           :opt-un [:tasks/description
-                   :tasks/executor-id]))
+                   :tasks/executor-id
+                   :tasks/labels]))
 
 (def spec-errors
   {::at-least-one "Должно быть не менее одного символа"
    ::string "Должна быть строкой"
    ::number "Должен быть числовой формат"
-   ::empty "Должно быть не менее одного статуса"})
+   ::empty "Должно быть не менее одного статуса"
+   ::vector "Должен быть вектор"
+   ::numeric-items "Вектор содержит нечисловые элементы"})
 
 (defn validate-task
   [task]
@@ -53,7 +63,7 @@
                   :clojure.spec.alpha/problems
                   (reduce (fn
                             [init problem]
-                            (assoc init (-> problem :in last) (get spec-errors (-> problem :via peek))))
+                            (assoc init (-> problem :path peek) (get spec-errors (-> problem :via peek))))
                           {}))
      :values (->> (s/explain-data :tasks/entity task)
                   :clojure.spec.alpha/value)}))
